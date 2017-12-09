@@ -199,3 +199,31 @@ class DbModel {
         
     }
 }
+
+function redirection_create_db() {
+    global $wpdb;
+    $db_name = DB_REDIRECTION;
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    // create the ECPT metabox database table
+    if($wpdb->get_var("show tables like '$db_name'") != $db_name) 
+    {
+            $sql = 'CREATE TABLE ' . $db_name . ' (
+            `re_id` mediumint NOT NULL AUTO_INCREMENT,
+            `re_source` mediumint NOT NULL,
+            `re_source_multi` text NOT NULL,
+            `re_destination` text NOT NULL,
+            `re_type` tinytext NOT NULL,
+            `re_active` tinyint NOT NULL,
+            `re_count_non` int NOT NULL,
+            `re_count_redirect` int NOT NULL,
+            `re_count` int NOT NULL,
+            UNIQUE KEY re_id (re_id)
+            )' . $charset_collate . ';
+                
+            CREATE INDEX idx_postid ON $db_name (re_source);';
+
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+    }
+}
