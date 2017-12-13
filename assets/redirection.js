@@ -110,7 +110,7 @@ jQuery(document).ready(function($) {
                 console.log("Updated status redirection " + re_id + " to " + changeValue);
                 item.prop('disabled', false);
             });
-    })
+    });
     
     $('.button-delete').click(function() {
         
@@ -128,7 +128,7 @@ jQuery(document).ready(function($) {
                 console.log("Deleted redirection: " + re_id);
                 row.remove();
             });
-    })
+    });
     
     $(window).keydown(function(event){
         if(event.keyCode == 13) {

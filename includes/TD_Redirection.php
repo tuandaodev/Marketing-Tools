@@ -51,12 +51,16 @@ if (!class_exists('TD_Redirection')) {
             }
             
             if ($exists != false) {
-                    if ($exists['re_active'] == 0 || $check_referer) {
-                        $dbModel->update_count($exists['re_id'], true);
-                        $this->redirection_by_url(urldecode($exists['re_destination']));
-                    } else {
-                        $dbModel->update_count($exists['re_id'], false);
-                    }
+                $ip = getClientIP();
+                $agent = getClientAgent();
+                $dbModel->log_client_IP($exists['re_id'], $ip, $agent);
+                
+                if ($exists['re_active'] == 0 || $check_referer) {
+                    $dbModel->update_count($exists['re_id'], true);
+                    $this->redirection_by_url(urldecode($exists['re_destination']));
+                } else {
+                    $dbModel->update_count($exists['re_id'], false);
+                }
             } 
         }
 

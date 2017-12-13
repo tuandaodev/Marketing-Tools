@@ -25,10 +25,16 @@ if (!defined('DB_REDIRECTION')) {
     define('DB_REDIRECTION', 'wp_td_redirection');
 }
 
+if (!defined('DB_VISITOR_IP')) {
+    define('DB_VISITOR_IP', 'wp_td_visitor_ip');
+}
+
 require_once('autoload.php');
 require_once('includes/helper.php');
 
 add_action('plugins_loaded', 'marketing_tools_plugin_init');
+
+register_activation_hook(__FILE__, 'tracking_create_db');
 register_activation_hook(__FILE__, 'redirection_create_db');
 
 function marketing_tools_plugin_init() {
@@ -64,6 +70,7 @@ function function_redirection_page() {
                 <div class="col-lg-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
+                            <i class="fa fa-plus-circle fa-fw"></i>
                             <strong><font color="blue">COUPON Redirection</font></strong>
                         </div>
                         <div class="panel-body">';
@@ -116,6 +123,7 @@ function function_redirection_page() {
                 <div class="col-lg-6">
                     <div class="panel panel-default">
                         <div class="panel-heading">
+                        <i class="fa fa-plus-circle fa-fw"></i>
                             <strong><font color="blue">STORE Redirection</font></strong>
                         </div>
                         <div class="panel-body">';
@@ -167,6 +175,7 @@ function function_redirection_page() {
             <div class="col-lg-12">';
         echo '<div class="panel panel-default">
                         <div class="panel-heading">
+                        <i class="fa fa-bar-chart-o fa-fw"></i>
                             Redirection List
                         </div>
                         <!-- /.panel-heading -->
@@ -275,4 +284,130 @@ function function_redirection_page() {
 </div>';
 }
 
+function function_visitor_ip_tracking_page() {
+    
+    load_assets_visitor_ip_tracking();
+//    global_admin_ajax();
+    
+    $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    
+    echo '<div class="wrap">';
+        echo '<div class="row"> 
+            <div class="col-lg-12">';
+        echo '<div class="panel panel-default">
+                        <div class="panel-heading">
+                        <i class="fa fa-bar-chart-o fa-fw"></i>
+                            Visitor IP Tracking List
+                            <div class="pull-right">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        Options
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu pull-right" role="menu">
+                                        <li><a href="#">Hide Agent Info</a>
+                                        </li>
+                                        <li><a href="#">Show Agent Info</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.panel-heading -->
+                        <div class="panel-body">
+                            <div id="dataTables-example_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                                <div class="row">
+                            
+                            </div></div>
+                            <div class="row">
+                            <div class="col-sm-12">
+                            <table width="100%" class="table table-striped table-bordered table-hover dataTable no-footer dtr-inline" id="dataTables-example" role="grid" aria-describedby="dataTables-example_info" style="width: 100%;">
+                               <thead>
+                                <tr role="row">
+                                   <th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;" aria-sort="descending" >No</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 10px;">IP</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">RID</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 100px;">URL</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
+                                   <th id="log_agent" class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px; display: none;">Note</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">Count</th>
+                                </tr>
+                             </thead>
+                                <tbody>';
+    
+    $all_logs = $dbModel->getAllVistorIpTracking();
+    
+    $count = 0;
+    foreach ($all_logs as $ip_log) {
+
+        if ($ip_log['re_type'] == 'store') {
+            $url = get_term_link((int)$ip_log['re_source']);
+            $store_info = $dbModel->getStoreInfoByStoreID((int)$ip_log['re_source']);
+            $title = isset($store_info['name']) ? $store_info['name'] : '';
+        } else {
+            $url = get_permalink($ip_log['re_source']);
+            $title = get_the_title($ip_log['re_source']);
+        }
+
+        if (isset($url->errors)) {
+            $url = '';
+        }
+
+        $count++;
+        if ($count % 2 == 0) {
+            $row_color = "gradeA odd";
+        } else {
+            $row_color = "gradeA even";
+        }
+        echo ' <tr class="' . $row_color . '" role="row">
+                        <td class="sorting_1" >' . $ip_log['vi_id'] . '</td>
+                       <td class="center">' . $ip_log['vi_ip'] . '</td>
+                           <td class="center">' . $ip_log['vi_url'] . '</td>';
+            if (!empty($url)) {
+                echo '<td class="center"><a href="' . $url . '" target="_blank" >' . $title . ' </a></td>';
+            } else {
+                echo '<td class="center"> URL Redirect ID: ' . $ip_log['vi_url'] . '</td>';
+            }
+                            
+            echo '<td class="center">' . $ip_log['vi_updated'] . '</td>';
+            echo '<td name="log_agent" class="center" style="display: none;">' . $ip_log['vi_notes'] . '</td>';
+            echo '<td class="center">' . $ip_log['vi_count'] . '</td>';
+            
+        echo '</tr>';
+    }
+                    echo '</tbody>
+                            </table></div></div>
+                            <!-- <div class="row"><div class="col-sm-6"><div class="dataTables_info" id="dataTables-example_info" role="status" aria-live="polite">Showing 1 to 10 of 57 entries</div></div><div class="col-sm-6"><div class="dataTables_paginate paging_simple_numbers" id="dataTables-example_paginate"><ul class="pagination"><li class="paginate_button previous disabled" aria-controls="dataTables-example" tabindex="0" id="dataTables-example_previous"><a href="#">Previous</a></li><li class="paginate_button active" aria-controls="dataTables-example" tabindex="0"><a href="#">1</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">2</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">3</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">4</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">5</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">6</a></li><li class="paginate_button next" aria-controls="dataTables-example" tabindex="0" id="dataTables-example_next"><a href="#">Next</a></li></ul></div></div></div></div> --> 
+                            <!-- /.table-responsive -->
+                            
+                        </div>
+                        <!-- /.panel-body -->
+                    </div>';
+    
+    echo '</div></div></div>';
+    echo '<div class="modal fade" id="myEditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"> <span aria-hidden="true" class="">×   </span><span class="sr-only">Close</span>
+
+                </button>
+                 <h4 class="modal-title" id="myModalLabel">Edit Redirection</h4>
+
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" id="close-update-modal" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>';
+}
 ?>

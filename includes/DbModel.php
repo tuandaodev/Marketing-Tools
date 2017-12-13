@@ -185,6 +185,57 @@ class DbModel {
         
     }
     
+    public function log_client_IP($re_id, $ip, $agent = '') {
+        
+//        if (count($ip) < 5) return;
+        
+        $exists = $this->check_exists_client_IP($re_id, $ip);
+        
+        if (isset($exists['vi_id'])) {
+            $query = '  UPDATE ' . DB_VISITOR_IP . ' 
+                        SET 
+                        vi_count = vi_count + 1,
+                        vi_updated = Now()';
+            if (!empty($agent)) {
+                $query .= ',vi_notes = "' . $agent . '"';
+            }
+            $query .= 'WHERE vi_id = ' . $exists['vi_id'];
+        } else {
+            $query = '  INSERT INTO ' . DB_VISITOR_IP . ' (vi_ip, vi_url, vi_date, vi_updated, vi_count)
+                        VALUES (
+                        "' . $ip . '",
+                        ' . $re_id . ',
+                        Now(),
+                        Now(),
+                         1)';
+        }
+        
+        $result = mysqli_query($this->link, $query);
+
+        return $result;
+        
+    }
+    
+    public function check_exists_client_IP($re_id, $ip) {
+        
+            $query = '  SELECT 
+                            vi_id,
+                            vi_count
+                        FROM ' . DB_VISITOR_IP . ' 
+                        WHERE vi_url = ' . $re_id . ' AND vi_ip = "' . $ip . '"'
+                    ;
+        
+        $result = mysqli_query($this->link, $query);
+
+        $return = mysqli_fetch_assoc($result);
+
+        if (empty($return)) {
+            return false;
+        }
+        
+        return $return;
+    }
+    
     public function getAllCouponStore($store_name = '') {
         
         $query = "SELECT wp_terms.term_id, wp_terms.name FROM wp_terms INNER JOIN wp_term_taxonomy ON wp_terms.term_id = wp_term_taxonomy.term_id WHERE wp_term_taxonomy.taxonomy = 'coupon_store'";
@@ -198,32 +249,37 @@ class DbModel {
         return $return;
         
     }
-}
-
-function redirection_create_db() {
-    global $wpdb;
-    $db_name = DB_REDIRECTION;
-    $charset_collate = $wpdb->get_charset_collate();
     
-    // create the ECPT metabox database table
-    if($wpdb->get_var("show tables like '$db_name'") != $db_name) 
-    {
-            $sql = 'CREATE TABLE ' . $db_name . ' (
-            `re_id` mediumint NOT NULL AUTO_INCREMENT,
-            `re_source` mediumint NOT NULL,
-            `re_source_multi` text NOT NULL,
-            `re_destination` text NOT NULL,
-            `re_type` tinytext NOT NULL,
-            `re_active` tinyint NOT NULL,
-            `re_count_non` int NOT NULL,
-            `re_count_redirect` int NOT NULL,
-            `re_count` int NOT NULL,
-            UNIQUE KEY re_id (re_id)
-            )' . $charset_collate . ';
-                
-            CREATE INDEX idx_postid ON $db_name (re_source);';
+    public function getStoreInfoByStoreID($store_id = '') {
+        
+        $query = 'SELECT * FROM wp_terms WHERE term_id = ' . $store_id;
+        
+        $result = mysqli_query($this->link, $query);
 
-            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-            dbDelta($sql);
+        $return = mysqli_fetch_assoc($result);
+
+        if (empty($return)) {
+            return false;
+        }
+        
+        return $return;
+        
+    }
+    
+        public function getAllVistorIpTracking() {
+        
+        $query = 'SELECT * FROM ' . DB_VISITOR_IP . ' INNER JOIN wp_td_redirection ON vi_url = re_id';
+        
+        $result = mysqli_query($this->link, $query);
+
+        if ($result) {
+            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        } else {
+            $return = [];
+        }
+
+        return $return;
+        
     }
 }
+
