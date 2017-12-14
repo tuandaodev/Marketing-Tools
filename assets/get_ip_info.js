@@ -11,6 +11,9 @@ jQuery(document).ready(function($) {
             "bDestroy": true,
             "autoWidth": false
         });
+
+     var table = $('#dataTables-example').DataTable();
+     table.columns( [ 4, 5, 7 ] ).visible( false, false );
         
     $('li a').click(function(e) {
         
