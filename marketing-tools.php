@@ -329,7 +329,7 @@ function function_visitor_ip_tracking_page() {
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">RID</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 100px;">URL</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
-                                   <th id="log_agent" class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px; display: none;">Note</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Note</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">Count</th>
                                 </tr>
                              </thead>
@@ -370,7 +370,7 @@ function function_visitor_ip_tracking_page() {
             }
                             
             echo '<td class="center">' . $ip_log['vi_updated'] . '</td>';
-            echo '<td name="log_agent" class="center" style="display: none;">' . $ip_log['vi_notes'] . '</td>';
+            echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
             echo '<td class="center">' . $ip_log['vi_count'] . '</td>';
             
         echo '</tr>';
@@ -464,10 +464,10 @@ function function_get_ip_information_page() {
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">IP</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">ISP/Org</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">State/Region</th>
-                                       <th class="sorting" tabindex="0" id="ip_addition_info" name="ip_addition_info" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Lat</th>
-                                       <th class="sorting" tabindex="0" id="ip_addition_info" name="ip_addition_info" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Lon</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Lat</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Lon</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Address</th>
-                                       <th class="sorting" tabindex="0" id="ip_addition_info" name="ip_addition_info" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Provider</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Provider</th>
                                        
                                     </tr>
                                  </thead>
@@ -506,8 +506,8 @@ function function_get_ip_information_page() {
                 echo '<td class="center">' . $ip_detail['ip'] . '</td>';
                 echo '<td class="center">' . $ip_detail['isp'] . '</td>';
                 echo '<td class="center">' . $ip_detail['region'] . '</td>';
-                echo '<td class="center" name="ip_addition_info" >' . $ip_detail['lat'] . '</td>';
-                echo '<td class="center" name="ip_addition_info" >' . $ip_detail['lon'] . '</td>';
+                echo '<td class="center">' . $ip_detail['lat'] . '</td>';
+                echo '<td class="center">' . $ip_detail['lon'] . '</td>';
                 
                 $google_url = "http://maps.googleapis.com/maps/api/geocode/json?latlng={$ip_detail['lat']},{$ip_detail['lon']}";
                 
@@ -518,7 +518,7 @@ function function_get_ip_information_page() {
                 }
                 
                 
-                echo '<td class="center" name="ip_addition_info" ><a href="' . $ip_detail['api_url'] . '" target="_blank" >' . $ip_detail['provider'] . '</a></td>';
+                echo '<td class="center"><a href="' . $ip_detail['api_url'] . '" target="_blank" >' . $ip_detail['provider'] . '</a></td>';
                 
             } else {
 
@@ -526,10 +526,10 @@ function function_get_ip_information_page() {
                 echo '<td class="center">' . $ip . '</td>';
                 echo '<td class="center">FAIL</td>';
                 echo '<td class="center"></td>';
-                echo '<td class="center" name="ip_addition_info" ></td>';
-                echo '<td class="center" name="ip_addition_info" ></td>';
                 echo '<td class="center"></td>';
-                echo '<td class="center" name="ip_addition_info" ></td>';
+                echo '<td class="center"></td>';
+                echo '<td class="center"></td>';
+                echo '<td class="center"></td>';
                 
                 }
 //                echo '<td>  <button type="button" class="btn btn-success btn-xs button-edit" data-toggle="modal" data-target="#myEditModal" title="Edit this redirection"><i class="glyphicon glyphicon-edit"></i></button>';

@@ -11,15 +11,19 @@ jQuery(document).ready(function($) {
             "bDestroy": true,
             "autoWidth": false
         });
-        
+    
+    var table = $('#dataTables-example').DataTable();
+    
+    table.column( 5 ).visible( false );
+    
     $('li a').click(function(e) {
         
+         var table = $('#dataTables-example').DataTable();
+        
         if ($(this).text() == 'Hide Agent Info') {
-            $('#log_agent').hide();
-            $('td[name="log_agent"]').hide();
+            table.column( 5 ).visible( false );
         } else {
-            $('#log_agent').show();
-            $('td[name="log_agent"]').show();
+            table.column( 5 ).visible( true );
         }
         
       });

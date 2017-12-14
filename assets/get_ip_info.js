@@ -14,12 +14,12 @@ jQuery(document).ready(function($) {
         
     $('li a').click(function(e) {
         
+        var table = $('#dataTables-example').DataTable();
+        
         if ($(this).text() == 'Hide Info') {
-            $('th[name="ip_addition_info"]').hide();
-            $('td[name="ip_addition_info"]').hide();
+            table.columns( [ 4, 5, 7 ] ).visible( false, false );
         } else {
-            $('th[name="ip_addition_info"]').show();
-            $('td[name="ip_addition_info"]').show();
+            table.columns( [ 4, 5, 7 ] ).visible( true, true );
         }
         
       });
