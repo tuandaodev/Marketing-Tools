@@ -514,7 +514,7 @@ function function_get_ip_information_page() {
                 if (!empty($ip_address)) {
                     echo '<td class="center"><a href="' . $google_url . '" target="_blank" >' . $ip_address . '</a></td>';
                 } else {
-                    echo '<td class="center"><a href="' . $google_url . '" target="_blank" >Address Check</a></td>';
+                    echo '<td class="center"><a href="' . $google_url . '" target="_blank" >Check Address</a></td>';
                 }
                 
                 
