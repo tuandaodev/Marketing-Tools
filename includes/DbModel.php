@@ -73,7 +73,7 @@ class DbModel {
         
     }
     
-    public function add_redirection($source, $destination, $type = 'post', $active = 1, $source_multi = '') {
+    public function add_redirection($source, $destination, $type = 'post', $parent = 0,  $active = 1, $source_multi = '') {
         
         $exists = $this->check_exists_redirection($source, $type);
         
@@ -81,14 +81,14 @@ class DbModel {
             $this->update_redirection($exists['re_id'], $source, $destination, $type, $source_multi);
             return false;
         } else {
-            $query = '  INSERT INTO ' . DB_REDIRECTION . '(re_source, re_source_multi, re_destination, re_type, re_active, re_count_non, re_count_redirect, re_count)
+            $query = '  INSERT INTO ' . DB_REDIRECTION . '(re_source, re_source_multi, re_destination, re_type, re_active, re_count_non, re_count_redirect, re_count, re_parent)
                         VALUES (
                         ' . $source . ',
                         "' . urlencode($source_multi) . '",
                         "' . urlencode($destination) . '",
                         "' . $type . '",'
                         . $active . 
-                        ', 0, 0, 0)';
+                        ', 0, 0, 0, ' . $parent . ')';
             $result = mysqli_query($this->link, $query);
             return true;
         }
@@ -189,18 +189,18 @@ class DbModel {
         
 //        if (count($ip) < 5) return;
         
-        $exists = $this->check_exists_client_IP($re_id, $ip);
+//        $exists = $this->check_exists_client_IP($re_id, $ip);
         
-        if (isset($exists['vi_id'])) {
-            $query = '  UPDATE ' . DB_VISITOR_IP . ' 
-                        SET 
-                        vi_count = vi_count + 1,
-                        vi_updated = Now()';
-            if (!empty($agent)) {
-                $query .= ',vi_notes = "' . $agent . '"';
-            }
-            $query .= 'WHERE vi_id = ' . $exists['vi_id'];
-        } else {
+//        if (isset($exists['vi_id'])) {
+//            $query = '  UPDATE ' . DB_VISITOR_IP . ' 
+//                        SET 
+//                        vi_count = vi_count + 1,
+//                        vi_updated = Now()';
+//            if (!empty($agent)) {
+//                $query .= ',vi_notes = "' . $agent . '"';
+//            }
+//            $query .= 'WHERE vi_id = ' . $exists['vi_id'];
+//        } else {
             $query = '  INSERT INTO ' . DB_VISITOR_IP . ' (vi_ip, vi_url, vi_date, vi_updated, vi_count)
                         VALUES (
                         "' . $ip . '",
@@ -208,7 +208,7 @@ class DbModel {
                         Now(),
                         Now(),
                          1)';
-        }
+//        }
         
         $result = mysqli_query($this->link, $query);
 
