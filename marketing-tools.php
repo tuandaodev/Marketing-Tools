@@ -424,6 +424,8 @@ function function_get_ip_information_page() {
      
     if (isset($_POST['process_checkIPInfo'])) {
         $ip_list = $_POST['ip-list'];
+        $ip_provider = $_POST['ip-provider'];
+        
         $ip_list = explode("\n", str_replace("\r", "", $ip_list));
         
         echo '<div class="row"> 
@@ -432,6 +434,20 @@ function function_get_ip_information_page() {
                             <div class="panel-heading">
                             <i class="fa fa-bar-chart-o fa-fw"></i>
                                 IP Information List
+                                <div class="pull-right">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                                        Options
+                                        <span class="caret"></span>
+                                    </button>
+                                    <ul class="dropdown-menu pull-right" role="menu">
+                                        <li><a href="#">Show Info</a>
+                                        </li>
+                                        <li><a href="#">Hide Info</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                             </div>
                             <!-- /.panel-heading -->
                             <div class="panel-body">
@@ -446,9 +462,12 @@ function function_get_ip_information_page() {
                                     <tr role="row">
                                        <th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;" aria-sort="descending" >No</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">IP</th>
-                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">ISP</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">ISP/Org</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">State/Region</th>
+                                       <th class="sorting" tabindex="0" id="ip_addition_info" name="ip_addition_info" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Lat</th>
+                                       <th class="sorting" tabindex="0" id="ip_addition_info" name="ip_addition_info" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Lon</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Address</th>
+                                       <th class="sorting" tabindex="0" id="ip_addition_info" name="ip_addition_info" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Provider</th>
                                        
                                     </tr>
                                  </thead>
@@ -473,55 +492,49 @@ function function_get_ip_information_page() {
             
             
 //            $ip_detail = getIpInfo($ip);
-            $ip_detail = getIpInfo1($ip);
+            $ip_detail = getIpInfo($ip, $ip_provider);
             
             if (isset($ip_detail['ip'])) {
                 
-                $ip_address = getAddressGoogleAPI($ip_detail['latitude'], $ip_detail['longitude']);
-
-                echo '<td class="center">' . $count . '</td>';
-                echo '<td class="center">' . $ip_detail['ip'] . '</td>';
-                echo '<td class="center">' . $ip_detail['organisation'] . '</td>';
-                echo '<td class="center">' . $ip_detail['region'] . '</td>';
-                echo '<td class="center">' . $ip_address . '</td>';
-            
-            } else {
-                $ip_detail = getIpInfo2($ip);
-                if (isset($ip_detail['status'])) {
-                    
-                    if ($ip_detail['status'] == 'success') {
-                    
-                        $ip_address = getAddressGoogleAPI($ip_detail['lat'], $ip_detail['lon']);
-
-                        echo '<td class="center">' . $count . '</td>';
-                        echo '<td class="center">' . $ip_detail['query'] . '</td>';
-                        echo '<td class="center">' . $ip_detail['isp'] . '</td>';
-                        echo '<td class="center">' . $ip_detail['regionName'] . '</td>';
-                        echo '<td class="center">' . $ip_address . '</td>';
-                        
-                    } else {
-                        
-                        echo '<td class="center">' . $count . '</td>';
-                        echo '<td class="center">' . $ip . '</td>';
-                        echo '<td class="center">' . $ip_detail['message'] . '</td>';
-                        echo '<td class="center"></td>';
-                        echo '<td class="center"></td>';
-                    }
-                    
-                } else {
-                    
-                    echo '<td class="center">' . $count . '</td>';
-                    echo '<td class="center">' . $ip . '</td>';
-                    echo '<td class="center">' . $ip_detail . '</td>';
-                    echo '<td class="center"></td>';
-                    echo '<td class="center"></td>';
-                    
+                $ip_address = getAddressGoogleAPI2($ip_detail['lat'], $ip_detail['lon']);
+                
+                if ($ip_address == false) {
+                    $ip_address = getAddressGoogleAPI2($ip_detail['lat'], $ip_detail['lon']);
                 }
                 
-            }
+                echo '<td class="center">' . $count . '</td>';
+                echo '<td class="center">' . $ip_detail['ip'] . '</td>';
+                echo '<td class="center">' . $ip_detail['isp'] . '</td>';
+                echo '<td class="center">' . $ip_detail['region'] . '</td>';
+                echo '<td class="center" name="ip_addition_info" >' . $ip_detail['lat'] . '</td>';
+                echo '<td class="center" name="ip_addition_info" >' . $ip_detail['lon'] . '</td>';
+                
+                $google_url = "http://maps.googleapis.com/maps/api/geocode/json?latlng={$ip_detail['lat']},{$ip_detail['lon']}";
+                
+                if (!empty($ip_address)) {
+                    echo '<td class="center"><a href="' . $google_url . '" target="_blank" >' . $ip_address . '</a></td>';
+                } else {
+                    echo '<td class="center"><a href="' . $google_url . '" target="_blank" >Address Check</a></td>';
+                }
+                
+                
+                echo '<td class="center" name="ip_addition_info" ><a href="' . $ip_detail['api_url'] . '" target="_blank" >' . $ip_detail['provider'] . '</a></td>';
+                
+            } else {
+
+                echo '<td class="center">' . $count . '</td>';
+                echo '<td class="center">' . $ip . '</td>';
+                echo '<td class="center">FAIL</td>';
+                echo '<td class="center"></td>';
+                echo '<td class="center" name="ip_addition_info" ></td>';
+                echo '<td class="center" name="ip_addition_info" ></td>';
+                echo '<td class="center"></td>';
+                echo '<td class="center" name="ip_addition_info" ></td>';
+                
+                }
 //                echo '<td>  <button type="button" class="btn btn-success btn-xs button-edit" data-toggle="modal" data-target="#myEditModal" title="Edit this redirection"><i class="glyphicon glyphicon-edit"></i></button>';
 //                echo '  <button type="button" class="btn btn-danger btn-xs button-delete" title="Delete this redirection"><i class="fa fa-times"></i></button>';
-                echo '</td>';
+//                echo '</td>';
             echo '</tr>';
         }
                         echo '</tbody>
@@ -540,12 +553,24 @@ function function_get_ip_information_page() {
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <i class="fa fa-plus-circle fa-fw"></i>
-                            <strong><font color="blue">IP List</font></strong>
+                            <strong><font color="blue">Get IP Information</font></strong>
+                            
                         </div>
                         <div class="panel-body">';
                         
 
     echo '<form role="form" method="post">
+                                <div class="form-group">
+                                            <label>Select Providers</label>
+                                            <select class="form-control" id="ip-provider" name="ip-provider">
+                                                <option value="ipapi.co">ipapi.co</option>
+                                                <option value="ip-api.com">ip-api.com</option>
+                                                <option value="ipdata.co">ipdata.co</option>
+                                                <option value="random">Random Provider</option>
+                                                <option value="default" selected>Default</option>
+                                            </select>
+                                        </div>
+                                        
                                 <div class="form-group">
                                     <textarea id="ip-list" name="ip-list" class="form-control" rows="10">125.234.98.126
 103.11.173.6
@@ -589,34 +614,10 @@ function function_get_ip_information_page() {
     
 }
 
-//function getIpInfo2($ip) {
-//    $ch = curl_init();
-//
-//    curl_setopt($ch, CURLOPT_URL, "https://api.ipdata.co/{$ip}");
-//    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-//    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-//
-//    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-//      "Accept: application/json"
-//    ));
-//
-//    $response = curl_exec($ch);
-//    curl_close($ch);
-//
-//    $details = json_decode($response, true);
-//    if (isset($details['ip'])) {
-//        return $details;
-//    } else {
-//        return $response;
-//    }
-//    
-//}
-
-
 function getIpInfo1($ip) {
     
-    $url = "https://api.ipdata.co/{$ip}";
-
+    $url = "https://ipapi.co/{$ip}/json";
+    
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_URL, $url);
@@ -631,12 +632,20 @@ function getIpInfo1($ip) {
     curl_close($ch);
     
     $return = json_decode($response, true);
-    if (!is_null($return)) {
-        return $return;
+    if (!is_null($return) && isset($return['ip'])) {
+        $result['ip'] = $return['ip'];
+        $result['region'] = $return['region'];
+        $result['isp'] = $return['org'];
+        $result['lat'] = $return['latitude'];
+        $result['lon'] = $return['longitude'];
+        $result['provider'] = 'ipapi.co';
+        $result['api_url'] = $url;
+        return $result;
     } else {
         return false;
     }
 }
+
 
 function getIpInfo2($ip) {
     
@@ -656,30 +665,161 @@ function getIpInfo2($ip) {
     curl_close($ch);
     
     $return = json_decode($response, true);
-    if (!is_null($return)) {
-        return $return;
+    
+    if (!is_null($return) && isset($return['query'])) {
+        $result['ip'] = $return['query'];
+        $result['region'] = $return['regionName'];
+        if (!empty($return['org'])) {
+            $result['isp'] = $return['org'];
+        } else {
+            $result['isp'] = $return['isp'];
+        }
+        $result['lat'] = $return['lat'];
+        $result['lon'] = $return['lon'];
+        $result['provider'] = 'ip-api.com';
+        $result['api_url'] = $url;
+        return $result;
     } else {
-        return $response;
+        return false;
     }
 }
 
-//function getIpInfo($ip) {
-//    
-//    $ip_address = exe_getIPInfo($ip);
-//    $ip_address = json_decode($ip_address, true);
-//    if (isset($ip_address['ip'])) {
-//        return $ip_address;
-//    }
-//    
-//}
+function getIpInfo3($ip) {
+    
+    $url = "https://api.ipdata.co/{$ip}";
 
-function getAddressGoogleAPI($lat,$long) {
-    $details = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$long}"), true);
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+      "Accept: application/json"
+    ));
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $return = json_decode($response, true);
+    if (!is_null($return) && isset($return['ip'])) {
+        $result['ip'] = $return['ip'];
+        $result['region'] = $return['region'];
+        $result['isp'] = $return['organisation'];
+        $result['lat'] = $return['latitude'];
+        $result['lon'] = $return['longitude'];
+        $result['provider'] = 'ipdata.co';
+        $result['api_url'] = $url;
+        return $result;
+    } else {
+        return false;
+    }
+}
+
+
+function getIpInfo($ip, $provider = 'default') {
+    
+    if ($provider == 'default') {
+        $ip_info = getIpInfo2($ip);
+        if ($ip_info == false) {
+            $ip_info = getIpInfo1($ip);
+            if ($ip_info == false) {
+                $ip_info = getIpInfo3($ip);
+            }
+        }
+        return $ip_info;
+    } elseif ($provider == 'random') {
+        
+        $random = rand(1,3);
+        
+        switch ($random) {
+            case 'ipapi.co':
+            case 1:
+                $ip_info = getIpInfo1($ip);
+                break;
+            
+            case 'ipdata.co':
+            case 3:
+                $ip_info = getIpInfo3($ip);
+                break;
+            
+            case 'ip-api.com':
+            case 2:
+            default:
+                $ip_info = getIpInfo2($ip);
+                break;
+        }
+        
+        return $ip_info;
+        
+    } else {
+        switch ($provider) {
+            case 'ipapi.co':
+            case 1:
+                $ip_info = getIpInfo1($ip);
+                break;
+            
+            case 'ipdata.co':
+            case 3:
+                $ip_info = getIpInfo3($ip);
+                break;
+            
+            case 'ip-api.com':
+            case 2:
+            default:
+                $ip_info = getIpInfo2($ip);
+                break;
+        }
+        
+        return $ip_info;
+    }
+}
+
+function getAddressGoogleAPI($lat,$lon) {
+    $details = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lon}"), true);
     
     if (isset($details['results'])) {
         return $details['results'][0]['formatted_address'];
     } else {
         return false;
+    }
+}
+
+
+function getAddressGoogleAPI2($lat,$lon) {
+    
+    if ( empty($lat) || empty($lon)) {
+        return false;
+    }
+    
+    $url = "http://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lon}";
+
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+      "Accept: application/json"
+    ));
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $return = json_decode($response, true);
+    
+    if (!is_null($return) && isset($return['results'])) {
+        
+        if (is_array($return['results'])) {
+            return $return['results'][0]['formatted_address'];
+        } else {
+            echo '<pre>';
+            print_r($return);
+            echo '</pre>';
+            exit;
+        }
+    } else {
+        return getAddressGoogleAPI($lat, $lon);
     }
 }
 ?>

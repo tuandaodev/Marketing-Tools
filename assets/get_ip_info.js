@@ -11,6 +11,17 @@ jQuery(document).ready(function($) {
             "bDestroy": true,
             "autoWidth": false
         });
-    
+        
+    $('li a').click(function(e) {
+        
+        if ($(this).text() == 'Hide Info') {
+            $('th[name="ip_addition_info"]').hide();
+            $('td[name="ip_addition_info"]').hide();
+        } else {
+            $('th[name="ip_addition_info"]').show();
+            $('td[name="ip_addition_info"]').show();
+        }
+        
+      });
 });
 
