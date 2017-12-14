@@ -12,8 +12,8 @@ jQuery(document).ready(function($) {
             "autoWidth": false
         });
 
-     var table = $('#dataTables-example').DataTable();
-     table.columns( [ 4, 5, 7 ] ).visible( false, false );
+//     var table = $('#dataTables-example').DataTable();
+//     table.columns( [ 4, 5, 7 ] ).visible( false, false );
         
     $('li a').click(function(e) {
         

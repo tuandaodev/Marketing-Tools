@@ -462,7 +462,7 @@ function function_get_ip_information_page() {
                                     <tr role="row">
                                        <th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;" aria-sort="descending" >No</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">IP</th>
-                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">ISP/Org</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">ISP / Organization</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">State/Region</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Lat</th>
                                        <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Lon</th>
@@ -476,8 +476,15 @@ function function_get_ip_information_page() {
 
 //        $ip_list = 
 
+        $requestURLs = multi_call($ip_list, $ip_provider);
+        
+        
+        $ip_details = runRequests($requestURLs);
+        
+        $ProcessedData = process_received_data($ip_details);
+        
         $count = 0;
-        foreach ($ip_list as $ip) {
+        foreach ($ProcessedData as $key => $ip_detail) {
             
             $count++;
 
@@ -489,18 +496,13 @@ function function_get_ip_information_page() {
             
             echo '<tr class="' . $row_color . '" role="row">';
             
-            
-            
-//            $ip_detail = getIpInfo($ip);
-            $ip_detail = getIpInfo($ip, $ip_provider);
-            
             if (isset($ip_detail['ip'])) {
                 
-                $ip_address = getAddressGoogleAPI2($ip_detail['lat'], $ip_detail['lon']);
+//                $ip_address = getAddressGoogleAPI2($ip_detail['lat'], $ip_detail['lon']);
                 
-                if ($ip_address == false) {
-                    $ip_address = getAddressGoogleAPI2($ip_detail['lat'], $ip_detail['lon']);
-                }
+//                if ($ip_address == false) {
+//                    $ip_address = getAddressGoogleAPI2($ip_detail['lat'], $ip_detail['lon']);
+//                }
                 
                 echo '<td class="center">' . $count . '</td>';
                 echo '<td class="center">' . $ip_detail['ip'] . '</td>';
@@ -509,12 +511,12 @@ function function_get_ip_information_page() {
                 echo '<td class="center">' . $ip_detail['lat'] . '</td>';
                 echo '<td class="center">' . $ip_detail['lon'] . '</td>';
                 
-                $google_url = "http://maps.googleapis.com/maps/api/geocode/json?latlng={$ip_detail['lat']},{$ip_detail['lon']}";
+                $google_url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$ip_detail['lat']},{$ip_detail['lon']}&key=***REMOVED***";
                 
                 if (!empty($ip_address)) {
                     echo '<td class="center"><a href="' . $google_url . '" target="_blank" >' . $ip_address . '</a></td>';
                 } else {
-                    echo '<td class="center"><a href="' . $google_url . '" target="_blank" >Check Address</a></td>';
+                    echo '<td class="center">Empty</td>';
                 }
                 
                 
@@ -523,7 +525,7 @@ function function_get_ip_information_page() {
             } else {
 
                 echo '<td class="center">' . $count . '</td>';
-                echo '<td class="center">' . $ip . '</td>';
+                echo '<td class="center">' . $ip_detail . '</td>';
                 echo '<td class="center">FAIL</td>';
                 echo '<td class="center"></td>';
                 echo '<td class="center"></td>';
@@ -566,14 +568,22 @@ function function_get_ip_information_page() {
                                                 <option value="ipapi.co">ipapi.co</option>
                                                 <option value="ip-api.com">ip-api.com</option>
                                                 <option value="ipdata.co">ipdata.co</option>
-                                                <option value="random">Random Provider</option>
-                                                <option value="default" selected>Default</option>
+                                                <option value="random" selected>Random Provider</option>
+                                                <option value="default">Default</option>
                                             </select>
                                         </div>
                                         
                                 <div class="form-group">
                                     <textarea id="ip-list" name="ip-list" class="form-control" rows="10">125.234.98.126
 103.11.173.6
+54.243.31.232
+107.23.255.8
+176.34.159.232
+54.228.16.8
+54.232.40.72
+177.71.207.168
+54.255.254.240
+54.250.253.240
 123.25.190.33</textarea>
                                 </div>
                                 
@@ -611,6 +621,106 @@ function function_get_ip_information_page() {
         </div>
     </div>
 </div>';
+    
+}
+
+function multi_call($ip_list, $provider = '') {
+    $count = 0;
+    foreach ($ip_list as $ip) {
+        $request_URLs[] = getIpRequestURL($ip, $provider);
+    }
+    return $request_URLs;
+}
+
+function process_received_data($ip_details) {
+    $count = 0;
+    $ProcessedData = [];
+    foreach ($ip_details as $key => $ip) {
+        $return = json_decode($ip['result'], true);
+        if (strpos($ip['url'], 'ip-api.com') != false) {    // 2
+                if (!is_null($return) && isset($return['query'])) {
+                    $result['ip'] = $return['query'];
+                    $result['region'] = $return['regionName'];
+                    if (!empty($return['org'])) {
+                        $result['isp'] = $return['org'];
+                    } else {
+                        $result['isp'] = $return['isp'];
+                    }
+                    $result['lat'] = $return['lat'];
+                    $result['lon'] = $return['lon'];
+                    $result['provider'] = 'ip-api.com';
+                    $result['api_url'] = $ip['url'];
+                    $ProcessedData[] = $result;
+                } else {
+                    $ProcessedData[] = $ip;
+                }
+        } elseif (strpos($ip['url'], 'ipdata.co') != false) {   // 3
+                if (!is_null($return) && isset($return['ip'])) {
+                    $result['ip'] = $return['ip'];
+                    $result['region'] = $return['region'];
+                    $result['isp'] = $return['organisation'];
+                    $result['lat'] = $return['latitude'];
+                    $result['lon'] = $return['longitude'];
+                    $result['provider'] = 'ipdata.co';
+                    $result['api_url'] = $ip['url'];
+                    $ProcessedData[] = $result;
+                } else {
+                    $ProcessedData[] = $ip;
+                }
+        } else {    // 1 ipapi.co
+            
+            if (!is_null($return) && isset($return['ip'])) {
+                $result['ip'] = $return['ip'];
+                $result['region'] = $return['region'];
+                $result['isp'] = $return['org'];
+                $result['lat'] = $return['latitude'];
+                $result['lon'] = $return['longitude'];
+                $result['provider'] = 'ipapi.co';
+                $result['api_url'] = $ip['url'];
+                $ProcessedData[] = $result;
+            } else {
+                    $ProcessedData[] = $ip;
+                }
+        }
+                
+    }
+    
+    return $ProcessedData;
+}
+
+function getIpRequestURL($ip, $provider = '') {
+    
+    if ($provider == 'default' || $provider == '') {
+        $api = 2;
+    } elseif ($provider == 'random') {
+        $api = rand(1, 3);
+    } else {
+        $api = $provider;
+    }
+    
+    switch ($api) {
+            
+            case 'ipdata.co':
+            case 3:
+                $url = "https://api.ipdata.co/{$ip}";
+                break;
+            
+            case 'ipapi.co':
+            case 1:
+                $url = "https://ipapi.co/{$ip}/json";
+                break;
+            
+            case 'ip-api.com':
+            case 2:
+                $url = "http://ip-api.com/json/{$ip}";
+                break;
+    }
+    
+    $return['ip'] = $ip;
+    $return['url'] = $url;
+    $return['provider'] = $api;
+    
+    return $return;
     
 }
 
@@ -776,7 +886,7 @@ function getIpInfo($ip, $provider = 'default') {
 }
 
 function getAddressGoogleAPI($lat,$lon) {
-    $details = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lon}"), true);
+    $details = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lon}&key=***REMOVED***"), true);
     
     if (isset($details['results'])) {
         return $details['results'][0]['formatted_address'];
@@ -792,7 +902,7 @@ function getAddressGoogleAPI2($lat,$lon) {
         return false;
     }
     
-    $url = "http://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lon}";
+    $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lon}&key=***REMOVED***";
 
     $ch = curl_init();
 
@@ -821,5 +931,64 @@ function getAddressGoogleAPI2($lat,$lon) {
     } else {
         return getAddressGoogleAPI($lat, $lon);
     }
+}
+
+function runRequests($url_array, $thread_width = 4) {
+    $threads = 0;
+    $master = curl_multi_init();
+    $curl_opts = array(CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS => 5,
+        CURLOPT_CONNECTTIMEOUT => 15,
+        CURLOPT_TIMEOUT => 15,
+        CURLOPT_RETURNTRANSFER => TRUE);
+    $results = array();
+
+    $count = 0;
+    foreach($url_array as $url) {
+        $ch = curl_init();
+        $curl_opts[CURLOPT_URL] = $url;
+
+        curl_setopt_array($ch, $curl_opts);
+        curl_multi_add_handle($master, $ch); //push URL for single rec send into curl stack
+        $results[$count] = array("url" => $url, "handle" => $ch);
+        $threads++;
+        $count++;
+        if($threads >= $thread_width) { //start running when stack is full to width
+            while($threads >= $thread_width) {
+                usleep(100);
+                while(($execrun = curl_multi_exec($master, $running)) === -1){}
+                curl_multi_select($master);
+                // a request was just completed - find out which one and remove it from stack
+                while($done = curl_multi_info_read($master)) {
+                    foreach($results as &$res) {
+                        if($res['handle'] == $done['handle']) {
+                            $res['result'] = curl_multi_getcontent($done['handle']);
+                        }
+                    }
+                    curl_multi_remove_handle($master, $done['handle']);
+                    curl_close($done['handle']);
+                    $threads--;
+                }
+            }
+        }
+    }
+    do { //finish sending remaining queue items when all have been added to curl
+        usleep(100);
+        while(($execrun = curl_multi_exec($master, $running)) === -1){}
+        curl_multi_select($master);
+        while($done = curl_multi_info_read($master)) {
+            foreach($results as &$res) {
+                if($res['handle'] == $done['handle']) {
+                    $res['result'] = curl_multi_getcontent($done['handle']);
+                }
+            }
+            curl_multi_remove_handle($master, $done['handle']);
+            curl_close($done['handle']);
+            $threads--;
+        }
+    } while($running > 0);
+    curl_multi_close($master);
+    return $results;
 }
 ?>
