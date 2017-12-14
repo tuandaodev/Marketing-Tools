@@ -410,4 +410,276 @@ function function_visitor_ip_tracking_page() {
     </div>
 </div>';
 }
+
+
+function function_get_ip_information_page() {
+    
+       load_assets_get_ip_info();
+//    global_admin_ajax();
+    
+    $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    
+    
+     echo '<div class="wrap">';
+     
+    if (isset($_POST['process_checkIPInfo'])) {
+        $ip_list = $_POST['ip-list'];
+        $ip_list = explode("\n", str_replace("\r", "", $ip_list));
+        
+        echo '<div class="row"> 
+                <div class="col-lg-12">';
+            echo '<div class="panel panel-default">
+                            <div class="panel-heading">
+                            <i class="fa fa-bar-chart-o fa-fw"></i>
+                                IP Information List
+                            </div>
+                            <!-- /.panel-heading -->
+                            <div class="panel-body">
+                                <div id="dataTables-example_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
+                                    <div class="row">
+
+                                </div></div>
+                                <div class="row">
+                                <div class="col-sm-12">
+                                <table width="100%" class="table table-striped table-bordered table-hover dataTable no-footer dtr-inline" id="dataTables-example" role="grid" aria-describedby="dataTables-example_info" style="width: 100%;">
+                                   <thead>
+                                    <tr role="row">
+                                       <th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;" aria-sort="descending" >No</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">IP</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">ISP</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 20px;">State/Region</th>
+                                       <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Address</th>
+                                       
+                                    </tr>
+                                 </thead>
+                                    <tbody>';
+
+
+//        $ip_list = 
+
+        $count = 0;
+        foreach ($ip_list as $ip) {
+            
+            $count++;
+
+            if ($count % 2 == 0) {
+                $row_color = "gradeA odd";
+            } else {
+                $row_color = "gradeA even";
+            }
+            
+            echo '<tr class="' . $row_color . '" role="row">';
+            
+            
+            
+//            $ip_detail = getIpInfo($ip);
+            $ip_detail = getIpInfo1($ip);
+            
+            if (isset($ip_detail['ip'])) {
+                
+                $ip_address = getAddressGoogleAPI($ip_detail['latitude'], $ip_detail['longitude']);
+
+                echo '<td class="center">' . $count . '</td>';
+                echo '<td class="center">' . $ip_detail['ip'] . '</td>';
+                echo '<td class="center">' . $ip_detail['organisation'] . '</td>';
+                echo '<td class="center">' . $ip_detail['region'] . '</td>';
+                echo '<td class="center">' . $ip_address . '</td>';
+            
+            } else {
+                $ip_detail = getIpInfo2($ip);
+                if (isset($ip_detail['status'])) {
+                    
+                    if ($ip_detail['status'] == 'success') {
+                    
+                        $ip_address = getAddressGoogleAPI($ip_detail['lat'], $ip_detail['lon']);
+
+                        echo '<td class="center">' . $count . '</td>';
+                        echo '<td class="center">' . $ip_detail['query'] . '</td>';
+                        echo '<td class="center">' . $ip_detail['isp'] . '</td>';
+                        echo '<td class="center">' . $ip_detail['regionName'] . '</td>';
+                        echo '<td class="center">' . $ip_address . '</td>';
+                        
+                    } else {
+                        
+                        echo '<td class="center">' . $count . '</td>';
+                        echo '<td class="center">' . $ip . '</td>';
+                        echo '<td class="center">' . $ip_detail['message'] . '</td>';
+                        echo '<td class="center"></td>';
+                        echo '<td class="center"></td>';
+                    }
+                    
+                } else {
+                    
+                    echo '<td class="center">' . $count . '</td>';
+                    echo '<td class="center">' . $ip . '</td>';
+                    echo '<td class="center">' . $ip_detail . '</td>';
+                    echo '<td class="center"></td>';
+                    echo '<td class="center"></td>';
+                    
+                }
+                
+            }
+//                echo '<td>  <button type="button" class="btn btn-success btn-xs button-edit" data-toggle="modal" data-target="#myEditModal" title="Edit this redirection"><i class="glyphicon glyphicon-edit"></i></button>';
+//                echo '  <button type="button" class="btn btn-danger btn-xs button-delete" title="Delete this redirection"><i class="fa fa-times"></i></button>';
+                echo '</td>';
+            echo '</tr>';
+        }
+                        echo '</tbody>
+                                </table></div></div>
+                                <!-- <div class="row"><div class="col-sm-6"><div class="dataTables_info" id="dataTables-example_info" role="status" aria-live="polite">Showing 1 to 10 of 57 entries</div></div><div class="col-sm-6"><div class="dataTables_paginate paging_simple_numbers" id="dataTables-example_paginate"><ul class="pagination"><li class="paginate_button previous disabled" aria-controls="dataTables-example" tabindex="0" id="dataTables-example_previous"><a href="#">Previous</a></li><li class="paginate_button active" aria-controls="dataTables-example" tabindex="0"><a href="#">1</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">2</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">3</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">4</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">5</a></li><li class="paginate_button " aria-controls="dataTables-example" tabindex="0"><a href="#">6</a></li><li class="paginate_button next" aria-controls="dataTables-example" tabindex="0" id="dataTables-example_next"><a href="#">Next</a></li></ul></div></div></div></div> --> 
+                                <!-- /.table-responsive -->
+
+                            </div>
+                            <!-- /.panel-body -->
+                        </div>';
+            echo '</div></div></div>';
+    }
+    else {
+    echo '<div class="row">
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-plus-circle fa-fw"></i>
+                            <strong><font color="blue">IP List</font></strong>
+                        </div>
+                        <div class="panel-body">';
+                        
+
+    echo '<form role="form" method="post">
+                                <div class="form-group">
+                                    <textarea id="ip-list" name="ip-list" class="form-control" rows="10">125.234.98.126
+103.11.173.6
+123.25.190.33</textarea>
+                                </div>
+                                
+                                <input type="hidden" id="process_checkIPInfo" name="process_checkIPInfo">
+
+                                <button type="submit" class="btn btn-success">Get Info</button>
+                                <button type="reset" class="btn btn-default">Reset</button>
+        </form>';
+    
+    echo '</div></div></div></div>';
+    }
+        
+    
+    echo '<div class="modal fade" id="myEditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+    <div class="modal-dialog">
+        <div class="modal-content"></div>
+    </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"> <span aria-hidden="true" class="">×   </span><span class="sr-only">Close</span>
+
+                </button>
+                 <h4 class="modal-title" id="myModalLabel">Edit Redirection</h4>
+
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" id="close-update-modal" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>';
+    
+}
+
+//function getIpInfo2($ip) {
+//    $ch = curl_init();
+//
+//    curl_setopt($ch, CURLOPT_URL, "https://api.ipdata.co/{$ip}");
+//    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+//    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+//
+//    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+//      "Accept: application/json"
+//    ));
+//
+//    $response = curl_exec($ch);
+//    curl_close($ch);
+//
+//    $details = json_decode($response, true);
+//    if (isset($details['ip'])) {
+//        return $details;
+//    } else {
+//        return $response;
+//    }
+//    
+//}
+
+
+function getIpInfo1($ip) {
+    
+    $url = "https://api.ipdata.co/{$ip}";
+
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+      "Accept: application/json"
+    ));
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $return = json_decode($response, true);
+    if (!is_null($return)) {
+        return $return;
+    } else {
+        return false;
+    }
+}
+
+function getIpInfo2($ip) {
+    
+    $url = "http://ip-api.com/json/{$ip}";
+    
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+      "Accept: application/json"
+    ));
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $return = json_decode($response, true);
+    if (!is_null($return)) {
+        return $return;
+    } else {
+        return $response;
+    }
+}
+
+//function getIpInfo($ip) {
+//    
+//    $ip_address = exe_getIPInfo($ip);
+//    $ip_address = json_decode($ip_address, true);
+//    if (isset($ip_address['ip'])) {
+//        return $ip_address;
+//    }
+//    
+//}
+
+function getAddressGoogleAPI($lat,$long) {
+    $details = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$long}"), true);
+    
+    if (isset($details['results'])) {
+        return $details['results'][0]['formatted_address'];
+    } else {
+        return false;
+    }
+}
 ?>

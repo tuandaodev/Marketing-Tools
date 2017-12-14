@@ -11,6 +11,7 @@ function marketing_tools_admin_menu() {
     add_menu_page('Marketing Tools', 'Marketing Tools', 'manage_options', 'marketing-tools', 'function_redirection_page', 'dashicons-admin-multisite', 4);
     add_submenu_page('marketing-tools', __('Redirection'), __('Redirection'), 'manage_options', 'marketing-tools');
     add_submenu_page('marketing-tools', __('Visitor IP Tracking'), __('Visitor IP Tracking'), 'manage_options', 'visitor-ip-tracking', 'function_visitor_ip_tracking_page');
+    add_submenu_page('marketing-tools', __('IP Information'), __('IP Information'), 'manage_options', 'get-ip-information', 'function_get_ip_information_page');
 }
 
 function redirection_create_db() {

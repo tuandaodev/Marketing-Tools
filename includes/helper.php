@@ -27,6 +27,15 @@ function load_assets_visitor_ip_tracking() {
     wp_enqueue_script('prefix_iptracking');
 }
 
+
+function load_assets_get_ip_info() {
+    
+    load_assets_common();
+    
+    wp_register_script('prefix_getipinfo', WC_PLUGIN_URL . 'assets/get_ip_info.js');
+    wp_enqueue_script('prefix_getipinfo');
+}
+
 function load_assets_redirection() {
         // JS
     load_assets_common();   
