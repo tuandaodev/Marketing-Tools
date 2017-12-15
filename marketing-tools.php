@@ -201,8 +201,8 @@ function function_redirection_page() {
                              </thead>
                                 <tbody>';
     
-    $all_coupon_redirections = $dbModel->getAllCouponRedirection();
-    $all_store_redirections = $dbModel->getAllStoreRedirection();
+    $all_coupon_redirections = $dbModel->getAllCouponRedirection_IpCount();
+    $all_store_redirections = $dbModel->getAllStoreRedirection_IpCount();
     
     $all_redirections = array_merge($all_coupon_redirections, $all_store_redirections);
     
@@ -242,7 +242,8 @@ function function_redirection_page() {
             } else {
                 echo '<td><input id="re_active_' . $redirect['re_id'] . '" class="redirection-active" type="checkbox" data-toggle="toggle" data-size="mini" data-on="Enabled" data-off="Disabled"></td>';
             }
-            echo '<td class="center">' . $redirect['re_count_non'] . '/' . $redirect['re_count_redirect'] . '/' . $redirect['re_count'] . '</td>';
+            $redirection_total = $redirect['re_count_non'] + $redirect['re_count_redirect'];
+            echo '<td class="center">' . $redirect['re_count_non'] . '/' . $redirect['re_count_redirect'] . '/' . $redirection_total . '</td>';
             echo '<td>  <button type="button" class="btn btn-success btn-xs button-edit" data-toggle="modal" data-target="#myEditModal" title="Edit this redirection"><i class="glyphicon glyphicon-edit"></i></button>';
             echo '  <button type="button" class="btn btn-danger btn-xs button-delete" title="Delete this redirection"><i class="fa fa-times"></i></button>';
             echo '</td>';
@@ -326,15 +327,15 @@ function function_visitor_ip_tracking_page() {
                                 <tr role="row">
                                    <th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;" aria-sort="descending" >No</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 10px;">IP</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">RID</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">ReID</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 100px;">URL</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Note</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">Count</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px; text-align: center;">Redirected</th>
                                 </tr>
                              </thead>
                                 <tbody>';
-    
+
     $all_logs = $dbModel->getAllVistorIpTracking();
     
     $count = 0;
@@ -359,8 +360,9 @@ function function_visitor_ip_tracking_page() {
         } else {
             $row_color = "gradeA even";
         }
+        //<td class="sorting_1" >' . $ip_log['vi_id'] . '</td>
         echo ' <tr class="' . $row_color . '" role="row">
-                        <td class="sorting_1" >' . $ip_log['vi_id'] . '</td>
+                        <td class="sorting_1" >' . $count . '</td>
                        <td class="center">' . $ip_log['vi_ip'] . '</td>
                            <td class="center">' . $ip_log['vi_url'] . '</td>';
             if (!empty($url)) {
@@ -369,9 +371,9 @@ function function_visitor_ip_tracking_page() {
                 echo '<td class="center"> URL Redirect ID: ' . $ip_log['vi_url'] . '</td>';
             }
                             
-            echo '<td class="center">' . $ip_log['vi_updated'] . '</td>';
+            echo '<td class="center">' . $ip_log['vi_date'] . '</td>';
             echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
-            echo '<td class="center">' . $ip_log['vi_count'] . '</td>';
+            echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
             
         echo '</tr>';
     }

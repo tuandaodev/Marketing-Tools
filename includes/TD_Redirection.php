@@ -53,13 +53,13 @@ if (!class_exists('TD_Redirection')) {
             if ($exists != false) {
                 $ip = getClientIP();
                 $agent = getClientAgent();
-                $dbModel->log_client_IP($exists['re_id'], $ip, $agent);
+                
                 
                 if ($exists['re_active'] == 0 || $check_referer) {
-                    $dbModel->update_count($exists['re_id'], true);
+                    $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1);
                     $this->redirection_by_url(urldecode($exists['re_destination']));
                 } else {
-                    $dbModel->update_count($exists['re_id'], false);
+                    $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 0);
                 }
             } 
         }

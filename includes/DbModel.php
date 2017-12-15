@@ -57,6 +57,41 @@ class DbModel {
         
     }
     
+    public function getAllStoreRedirection_IpCount() {
+        
+        $query = 'SELECT 
+                    re_id, 
+                    re_source, 
+                    re_destination, 
+                    re_type, 
+                    re_active, 
+                    name, 
+                    (SELECT count(*)
+                                            FROM wp_td_visitor_ip
+                            WHERE vi_url = wp_td_redirection.re_id
+                            AND vi_redirected = 0
+                    ) as re_count_non, 
+                    (SELECT count(*)
+                                            FROM wp_td_visitor_ip
+                            WHERE vi_url = wp_td_redirection.re_id
+                            AND vi_redirected = 1
+                    ) as re_count_redirect
+                FROM wp_td_redirection 
+                INNER JOIN wp_terms ON re_source = wp_terms.term_id
+                WHERE re_type = "store"';
+        
+        $result = mysqli_query($this->link, $query);
+
+        if ($result) {
+            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        } else {
+            $return = [];
+        }
+
+        return $return;
+        
+    }
+    
     public function getAllCouponRedirection() {
         
         $query = "SELECT re_id, re_source, re_destination, re_type, re_active, post_title as 'name', re_count_non, re_count_redirect, re_count FROM " . DB_REDIRECTION . ' INNER JOIN wp_posts ON re_source = wp_posts.ID WHERE re_type = "coupon"';
@@ -73,7 +108,42 @@ class DbModel {
         
     }
     
-    public function add_redirection($source, $destination, $type = 'post', $parent = 0,  $active = 1, $source_multi = '') {
+    public function getAllCouponRedirection_IpCount() {
+        
+        $query = '  SELECT 
+                        re_id, 
+                        re_source, 
+                        re_destination, 
+                        re_type, 
+                        re_active, 
+                        post_title as name, 
+                        (SELECT count(*)
+                                    FROM wp_td_visitor_ip
+                            WHERE vi_url = wp_td_redirection.re_id
+                            AND vi_redirected = 0
+                        ) as re_count_non, 
+                        (SELECT count(*)
+                                    FROM wp_td_visitor_ip
+                            WHERE vi_url = wp_td_redirection.re_id
+                            AND vi_redirected = 1
+                        ) as re_count_redirect
+                    FROM wp_td_redirection 
+                    INNER JOIN wp_posts ON re_source = wp_posts.ID 
+                    WHERE re_type = "coupon"';
+        
+        $result = mysqli_query($this->link, $query);
+
+        if ($result) {
+            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        } else {
+            $return = [];
+        }
+
+        return $return;
+        
+    }
+    
+    public function add_redirection($source, $destination, $type = 'post', $active = 1, $source_multi = '') {
         
         $exists = $this->check_exists_redirection($source, $type);
         
@@ -81,6 +151,32 @@ class DbModel {
             $this->update_redirection($exists['re_id'], $source, $destination, $type, $source_multi);
             return false;
         } else {
+            
+            if ($type == 'coupon') {
+                $temp_query = '   select term_id as store_id
+                                from wp_term_relationships 
+                                INNER JOIN wp_term_taxonomy 
+                                ON wp_term_taxonomy.term_taxonomy_id = wp_term_relationships.term_taxonomy_id
+                                where wp_term_relationships.object_id = ' . $source . '
+                                and taxonomy = "coupon_store"';
+                
+                $temp_result = mysqli_query($this->link, $temp_query);
+
+                $temp_return = mysqli_fetch_assoc($temp_result);
+
+                if (count($temp_return) > 0) {
+                    $parent = $temp_return['store_id'];
+                } else {
+                    $parent = 0;
+                }
+            } elseif ($type == 'store') {
+                $parent = $source;
+            }
+            
+            if (!$parent) {
+                $parent = 0;
+            }
+            
             $query = '  INSERT INTO ' . DB_REDIRECTION . '(re_source, re_source_multi, re_destination, re_type, re_active, re_count_non, re_count_redirect, re_count, re_parent)
                         VALUES (
                         ' . $source . ',
@@ -185,7 +281,7 @@ class DbModel {
         
     }
     
-    public function log_client_IP($re_id, $ip, $agent = '') {
+    public function log_client_IP($re_id, $ip, $agent = '', $redirected = 0) {
         
 //        if (count($ip) < 5) return;
         
@@ -201,40 +297,42 @@ class DbModel {
 //            }
 //            $query .= 'WHERE vi_id = ' . $exists['vi_id'];
 //        } else {
-            $query = '  INSERT INTO ' . DB_VISITOR_IP . ' (vi_ip, vi_url, vi_date, vi_updated, vi_count)
+            $query = '  INSERT INTO ' . DB_VISITOR_IP . ' (vi_ip, vi_url, vi_date, vi_notes, vi_redirected)
                         VALUES (
                         "' . $ip . '",
                         ' . $re_id . ',
                         Now(),
-                        Now(),
-                         1)';
+                        "' . $agent . '",
+                        ' . $redirected . '
+                        )';
+            
 //        }
-        
+            
         $result = mysqli_query($this->link, $query);
 
         return $result;
         
     }
     
-    public function check_exists_client_IP($re_id, $ip) {
-        
-            $query = '  SELECT 
-                            vi_id,
-                            vi_count
-                        FROM ' . DB_VISITOR_IP . ' 
-                        WHERE vi_url = ' . $re_id . ' AND vi_ip = "' . $ip . '"'
-                    ;
-        
-        $result = mysqli_query($this->link, $query);
-
-        $return = mysqli_fetch_assoc($result);
-
-        if (empty($return)) {
-            return false;
-        }
-        
-        return $return;
-    }
+//    public function check_exists_client_IP($re_id, $ip) {
+//        
+//            $query = '  SELECT 
+//                            vi_id,
+//                            vi_count
+//                        FROM ' . DB_VISITOR_IP . ' 
+//                        WHERE vi_url = ' . $re_id . ' AND vi_ip = "' . $ip . '"'
+//                    ;
+//        
+//        $result = mysqli_query($this->link, $query);
+//
+//        $return = mysqli_fetch_assoc($result);
+//
+//        if (empty($return)) {
+//            return false;
+//        }
+//        
+//        return $return;
+//    }
     
     public function getAllCouponStore($store_name = '') {
         
@@ -266,9 +364,13 @@ class DbModel {
         
     }
     
-        public function getAllVistorIpTracking() {
+    public function getAllVistorIpTracking($lastest_order = 1) {
         
         $query = 'SELECT * FROM ' . DB_VISITOR_IP . ' INNER JOIN wp_td_redirection ON vi_url = re_id';
+        
+        if ($lastest_order) {
+           $query .= ' ORDER BY vi_id DESC';
+        }
         
         $result = mysqli_query($this->link, $query);
 

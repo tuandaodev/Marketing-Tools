@@ -57,6 +57,7 @@ function tracking_create_db() {
             `vi_url` mediumint NOT NULL,
             `vi_date` datetime NOT NULL,
             `vi_notes` text NOT NULL,
+            `vi_redirected` tinyint NOT NULL,
             UNIQUE KEY vi_id (vi_id)
             )' . $charset_collate . ';
                 
