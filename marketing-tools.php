@@ -405,7 +405,7 @@ function function_visitor_ip_tracking_page() {
                                                 <option value="ip-api.com">ip-api.com</option>
                                                 <option value="ipdata.co">ipdata.co</option>
                                                 <option value="random" selected>Random Provider</option>
-                                                <option value="default">Default</option>
+                                                <!-- <option value="default">Default</option> -->
                                             </select>
                                         </div>
                                         
@@ -782,7 +782,7 @@ function function_get_ip_information_page() {
                                                 <option value="ipapi.co">ipapi.co</option>
                                                 <option value="ip-api.com">ip-api.com</option>
                                                 <option value="ipdata.co">ipdata.co</option>
-                                                <option value="random" selected>Random Provider</option>
+                                                <-- <option value="random" selected>Random Provider</option> -->
                                                 <option value="default">Default</option>
                                             </select>
                                         </div>
