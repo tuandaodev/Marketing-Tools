@@ -23,10 +23,53 @@ function load_assets_visitor_ip_tracking() {
     
     load_assets_common();
     
-    wp_register_script('prefix_iptracking', WC_PLUGIN_URL . 'assets/visitor_ip_tracking.js');
-    wp_enqueue_script('prefix_iptracking');
+    load_assets_datetime_picker();
+    
+//    wp_register_script('prefix_iptracking', WC_PLUGIN_URL . 'assets/visitor_ip_tracking.js');
+//    wp_enqueue_script('prefix_iptracking');
+    
+    wp_enqueue_style(
+            'jquery-auto-complete',
+            'https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.css',
+            array(),
+            '1.0.7'
+    );
+    wp_enqueue_script(
+            'jquery-auto-complete',
+            'https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js',
+            array( 'jquery' ),
+            '1.0.7',
+            true
+    );
+    
+    wp_enqueue_script(
+		'global',
+		WC_PLUGIN_URL . 'assets/visitor_ip_tracking.js',
+		array( 'jquery' ),
+		'1.0.0',
+		true
+	);
+    
+    wp_localize_script(
+		'global',
+		'global',
+		array(
+			'ajax' => admin_url( 'admin-ajax.php' ),
+		)
+	);
+    
 }
 
+function load_assets_datetime_picker() {
+    
+    wp_register_script('prefix_moment', WC_PLUGIN_URL . 'assets/moment.min.js');
+    wp_enqueue_script('prefix_moment');
+    
+    wp_register_script('prefix_datetime', '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js');
+    wp_enqueue_script('prefix_datetime');
+    
+    wp_enqueue_style('prefix_datetime', '//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css' );
+}
 
 function load_assets_get_ip_info() {
     
@@ -34,6 +77,8 @@ function load_assets_get_ip_info() {
     
     wp_register_script('prefix_getipinfo', WC_PLUGIN_URL . 'assets/get_ip_info.js');
     wp_enqueue_script('prefix_getipinfo');
+    
+   
 }
 
 function load_assets_redirection() {

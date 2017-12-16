@@ -364,12 +364,123 @@ class DbModel {
         
     }
     
-    public function getAllVistorIpTracking($lastest_order = 1) {
+    public function getAllVistorIpTracking($query_type = 'default', $input = []) {
         
-        $query = 'SELECT * FROM ' . DB_VISITOR_IP . ' INNER JOIN wp_td_redirection ON vi_url = re_id';
+        $isand = false;
+        $iswhere = true;
         
-        if ($lastest_order) {
-           $query .= ' ORDER BY vi_id DESC';
+        switch ($query_type) {
+            case 'query_all':
+                $query = 'SELECT * 
+                    FROM wp_td_visitor_ip 
+                    INNER JOIN wp_td_redirection ON vi_url = re_id';
+                break;
+            
+            case 'query_store':
+                $query = 'SELECT * 
+                    FROM wp_td_visitor_ip 
+                    INNER JOIN wp_td_redirection ON vi_url = re_id';
+                
+                if (isset($input['store_id']) && !empty($input['store_id'])) {
+                    $query .= ' WHERE re_parent = ' . $input['store_id'];
+                    $iswhere = false;
+                    $isand = true;
+                }
+                
+                break;
+            case 'query_coupon':
+                $query = 'SELECT * 
+                    FROM wp_td_visitor_ip 
+                    INNER JOIN wp_td_redirection ON vi_url = re_id';
+                
+                if (isset($input['post_id']) && !empty($input['post_id'])) {
+                    $query .= ' WHERE re_source = ' . $input['post_id'];
+                    $iswhere = false;
+                    $isand = true;
+                }
+                break;
+                
+            default:
+                $query = 'SELECT * FROM wp_td_visitor_ip INNER JOIN wp_td_redirection ON vi_url = re_id ';
+                break;
+        }
+        
+        switch ($input['query_timetype']) {
+            case 'time_all':
+                break;
+            case 'time_today':
+                if ($iswhere == true) {
+                        $query .= ' WHERE ';
+                        $iswhere = false;
+                        $isand = true;
+                } elseif ($isand == true) {
+                    $query .= ' AND ';
+                }
+                $query .= ' DATE(vi_date) = CURDATE() ';
+                break;
+            case 'time_7day':
+                if ($iswhere == true) {
+                        $query .= ' WHERE ';
+                        $iswhere = false;
+                        $isand = true;
+                } elseif ($isand == true) {
+                    $query .= ' AND ';
+                }
+                $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ';
+                break;
+            case 'time_1month':
+                if ($iswhere == true) {
+                        $query .= ' WHERE ';
+                        $iswhere = false;
+                        $isand = true;
+                } elseif ($isand == true) {
+                    $query .= ' AND ';
+                }
+                $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ';
+                break;
+            case 'time_3month':
+                if ($iswhere == true) {
+                        $query .= ' WHERE ';
+                        $iswhere = false;
+                        $isand = true;
+                } elseif ($isand == true) {
+                    $query .= ' AND ';
+                }
+                $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH) ';
+                break;
+            case 'time_custom':
+                if (isset($input['time_start']) && !empty($input['time_start'])) {
+                    if ($iswhere == true) {
+                        $query .= ' WHERE ';
+                        $iswhere = false;
+                        $isand = true;
+                    } elseif ($isand == true) {
+                        $query .= ' AND ';
+                    }
+                    $query .= ' vi_date >= "' . $input['time_start'] . '"';
+                }
+
+                if (isset($input['time_end']) && !empty($input['time_end'])) {
+                    if ($iswhere == true) {
+                        $query .= ' WHERE ';
+                        $iswhere = false;
+                        $isand = true;
+                    } elseif ($isand == true) {
+                        $query .= ' AND ';
+                    }
+                    $query .= ' vi_date <= "' . $input['time_end'] . '"';
+                }
+                break;
+            
+        }
+        
+        $query .= ' ORDER BY vi_id DESC';
+        
+        if ($query_type != 'default') {
+            echo "<pre>";
+            print_r($query);
+            echo "<pre>";
+//            exit;
         }
         
         $result = mysqli_query($this->link, $query);

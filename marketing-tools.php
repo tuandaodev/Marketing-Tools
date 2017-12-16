@@ -293,6 +293,101 @@ function function_visitor_ip_tracking_page() {
     $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
     
     echo '<div class="wrap">';
+    
+    echo '<div class="row">
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <i class="fa fa-plus-circle fa-fw"></i>
+                            <strong><font color="blue">Custom Search</font></strong>
+                        </div>
+                        <div class="panel-body">';
+                        
+    
+    
+    echo '<form role="form" method="post">
+                                    <div class="form-group">
+                                            <label>Query by</label>
+                                            <select class="form-control" id="query_type" name="query_type">
+                                            <option value="query_all" selected>All</option>
+                                                <option value="query_coupon">Coupon</option>
+                                                <option value="query_store">Store</option>
+                                            </select>
+                                        </div>';
+    
+    echo '
+        <div class="form-group input-group" id="search_store_group">
+                                            <input type="text" id="store_search" name="s" class="form-control search-autocomplete" placeholder="Store Search">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button" disabled><i class="fa fa-search" button></i>
+                                                </button>
+                                            </span>
+                                        </div>
+                    <div class="form-group input-group" id="search_post_group">
+                        <input type="text" id="post_search" name="s" class="form-control search-autocomplete" placeholder="Coupon Search">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" disabled><i class="fa fa-search" button></i>
+                            </button>
+                        </span>
+                    </div>
+            ';
+
+                                        
+
+                             echo '   <div class="form-group" id="post_id_group">
+                                    <label>Coupon ID</label>
+                                    <input type="number" class="form-control" id="post_id" name="post_id" value="">
+                                </div>
+                                
+
+
+                                <div class="form-group" id="store_id_group">
+                                    <label>Store ID</label>
+                                    <input type="number" class="form-control" id="store_id" name="store_id" value="">
+                                </div>
+                                
+                                <div class="form-group">
+                                            <label>Quick Time Select</label>
+                                            <select class="form-control" id="query_timetype" name="query_timetype">
+                                                <option value="time_all">All Time</option>
+                                                <option value="time_today">Today</option>
+                                                <option value="time_7day">Last 7 days</option>
+                                                <option value="time_1month">Last month</option>
+                                                <option value="time_3month">Last 3 months</option>
+                                                <option value="time_custom" selected>Custom</option>
+                                            </select>
+                                        </div>
+                                
+                                <div class="form-group" id="datetime_start_group">
+                                    <label>Start Time</label>
+                                            <div class="input-group date" id="datetime_start">
+                                                <input type="text" class="form-control" id="time_start" name="time_start"/>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                
+                                        
+
+                                <div class="form-group" id="datetime_end_group">
+                                <label>End Time</label>
+                                            <div class="input-group date" id="datetime_end">
+                                                <input type="text" class="form-control" id="time_end" name="time_end"/>
+                                                <span class="input-group-addon">
+                                                    <span class="glyphicon glyphicon-calendar"></span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        
+                                <input type="hidden" id="process_IpLogCustomSearch" name="process_IpLogCustomSearch">
+
+                                <button type="submit" class="btn btn-success">Query</button>
+                                <button type="reset" class="btn btn-default">Reset</button>
+        </form>';
+    
+    echo '</div></div></div></div>';
+    
         echo '<div class="row"> 
             <div class="col-lg-12">';
         echo '<div class="panel panel-default">
@@ -329,6 +424,7 @@ function function_visitor_ip_tracking_page() {
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 10px;">IP</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">ReID</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 100px;">URL</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Store</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Note</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px; text-align: center;">Redirected</th>
@@ -336,46 +432,92 @@ function function_visitor_ip_tracking_page() {
                              </thead>
                                 <tbody>';
 
-    $all_logs = $dbModel->getAllVistorIpTracking();
-    
-    $count = 0;
-    foreach ($all_logs as $ip_log) {
-
-        if ($ip_log['re_type'] == 'store') {
-            $url = get_term_link((int)$ip_log['re_source']);
-            $store_info = $dbModel->getStoreInfoByStoreID((int)$ip_log['re_source']);
-            $title = isset($store_info['name']) ? $store_info['name'] : '';
-        } else {
-            $url = get_permalink($ip_log['re_source']);
-            $title = get_the_title($ip_log['re_source']);
-        }
-
-        if (isset($url->errors)) {
-            $url = '';
-        }
-
-        $count++;
-        if ($count % 2 == 0) {
-            $row_color = "gradeA odd";
-        } else {
-            $row_color = "gradeA even";
-        }
-        //<td class="sorting_1" >' . $ip_log['vi_id'] . '</td>
-        echo ' <tr class="' . $row_color . '" role="row">
-                        <td class="sorting_1" >' . $count . '</td>
-                       <td class="center">' . $ip_log['vi_ip'] . '</td>
-                           <td class="center">' . $ip_log['vi_url'] . '</td>';
-            if (!empty($url)) {
-                echo '<td class="center"><a href="' . $url . '" target="_blank" >' . $title . ' </a></td>';
-            } else {
-                echo '<td class="center"> URL Redirect ID: ' . $ip_log['vi_url'] . '</td>';
-            }
-                            
-            echo '<td class="center">' . $ip_log['vi_date'] . '</td>';
-            echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
-            echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
+    if (isset($_POST['process_IpLogCustomSearch'])) {
+        switch ($_POST['query_type']) {
             
-        echo '</tr>';
+            case 'query_all':
+                
+                $input = get_time2query($_POST);
+                
+                $all_logs = $dbModel->getAllVistorIpTracking('query_all', $input);
+                
+                break;
+                
+            case 'query_store':
+                
+                $input = get_time2query($_POST);
+                $input['store_id'] = $_POST['store_id'];
+                
+                $all_logs = $dbModel->getAllVistorIpTracking('query_store', $input);
+                
+                break;
+                
+            case 'query_coupon':
+                
+                $input = get_time2query($_POST);
+                $input['post_id'] = $_POST['post_id'];
+                
+                $all_logs = $dbModel->getAllVistorIpTracking('query_coupon', $input);
+                
+                break;
+            
+            default:
+                break;
+        }
+        
+        // DO Search here
+        
+    } else {
+        $all_logs = $dbModel->getAllVistorIpTracking();
+    }
+    
+    
+    if (count($all_logs) > 0) {
+        $count = 0;
+        foreach ($all_logs as $ip_log) {
+
+            if ($ip_log['re_type'] == 'store') {
+                $url = get_term_link((int)$ip_log['re_source']);
+                $store_info = $dbModel->getStoreInfoByStoreID((int)$ip_log['re_source']);
+                $title = isset($store_info['name']) ? $store_info['name'] : '';
+                $parent_title = $title;
+            } else {
+                $url = get_permalink($ip_log['re_source']);
+                $title = get_the_title($ip_log['re_source']);
+                
+                $store_info = $dbModel->getStoreInfoByStoreID((int)$ip_log['re_parent']);
+                $parent_title = isset($store_info['name']) ? $store_info['name'] : '';
+//                $parent_title = $title;
+            }
+
+            if (isset($url->errors)) {
+                $url = '';
+            }
+
+            $count++;
+            if ($count % 2 == 0) {
+                $row_color = "gradeA odd";
+            } else {
+                $row_color = "gradeA even";
+            }
+            //<td class="sorting_1" >' . $ip_log['vi_id'] . '</td>
+            echo ' <tr class="' . $row_color . '" role="row">
+                            <td class="sorting_1" >' . $count . '</td>
+                           <td class="center">' . $ip_log['vi_ip'] . '</td>
+                               <td class="center">' . $ip_log['vi_url'] . '</td>';
+                if (!empty($url)) {
+                    echo '<td class="center"><a href="' . $url . '" target="_blank" >' . $title . ' </a></td>';
+                } else {
+                    echo '<td class="center"> URL Redirect ID: ' . $ip_log['vi_url'] . '</td>';
+                }
+                
+                echo '<td class="center">' . $parent_title . '</td>';
+                echo '<td class="center">' . $ip_log['vi_date'] . '</td>';
+                echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
+                echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
+
+            echo '</tr>';
+        }
     }
                     echo '</tbody>
                             </table></div></div>
@@ -413,6 +555,20 @@ function function_visitor_ip_tracking_page() {
 </div>';
 }
 
+function get_time2query($POST) {
+    $return['query_timetype'] = $POST['query_timetype'];
+    switch ($POST['query_timetype']) {
+        case 'time_custom':
+            if (isset($POST['time_start']) && !empty($POST['time_start'])) {
+                $input['time_start'] = date('Y-m-d H:i:s', strtotime($POST['time_start']));
+            }
+            if (isset($POST['time_end']) && !empty($POST['time_end'])) {
+                $input['time_end'] = date('Y-m-d H:i:s', strtotime($POST['time_end']));
+            }
+            break;
+    }
+    return $return;
+}
 
 function function_get_ip_information_page() {
     
