@@ -60,6 +60,8 @@ jQuery(document).ready(function($) {
         $("#store_id").prop('required',false);
     }
     
+
+    
     $('#query_type').on('change', function() {
         switch (this.value) {
             
@@ -113,7 +115,7 @@ jQuery(document).ready(function($) {
     
     $('li a').click(function(e) {
         
-         var table = $('#dataTables-example').DataTable();
+//         var table = $('#dataTables-example').DataTable();
         
         if ($(this).text() == 'Hide Agent Info') {
             table.column( 6 ).visible( false );
@@ -122,6 +124,18 @@ jQuery(document).ready(function($) {
         }
         
       });
+    
+    $('#get_ip_list').click(function () {
+       $('#ip-list').val(
+            table
+                .columns( 1 )
+                .data()
+                .eq( 0 )      // Reduce the 2D array into a 1D array of data
+                .sort()       // Sort data alphabetically
+                .unique()     // Reduce to unique values
+                .join( '\r\n' )
+        );
+    });
     
     var searchRequest;
     $('#post_search').autoComplete({

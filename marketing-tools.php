@@ -386,7 +386,41 @@ function function_visitor_ip_tracking_page() {
                                 <button type="reset" class="btn btn-default">Reset</button>
         </form>';
     
-    echo '</div></div></div></div>';
+    echo '</div></div></div>';
+    
+    echo '
+                <div class="col-lg-6">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                        <i class="fa fa-plus-circle fa-fw"></i>
+                            <strong><font color="blue">Get IP List</font></strong>
+                        </div>
+                        <div class="panel-body">';
+    
+           echo '<form role="form" method="post" action="admin.php?page=get-ip-information">
+                                <div class="form-group">
+                                            <label>Select Providers</label>
+                                            <select class="form-control" id="ip-provider" name="ip-provider">
+                                                <option value="ipapi.co">ipapi.co</option>
+                                                <option value="ip-api.com">ip-api.com</option>
+                                                <option value="ipdata.co">ipdata.co</option>
+                                                <option value="random" selected>Random Provider</option>
+                                                <option value="default">Default</option>
+                                            </select>
+                                        </div>
+                                        
+                                <div class="form-group">
+                                    <textarea id="ip-list" name="ip-list" class="form-control" rows="9" placeholder="Click [Get IP List] to get the IPs in [Visitor IP Tracking List]. &#10;Data will be remove duplicate." required></textarea>
+                                </div>
+                                
+                                <input type="hidden" id="process_checkIPInfo" name="process_checkIPInfo">
+                                
+                                <button type="button" class="btn btn btn-info" id="get_ip_list">Get IP List</button>
+                                <button type="submit" class="btn btn-success" id="get_ip_info">Get Info</button>
+                                <button type="reset" class="btn btn-default">Reset</button>
+        </form>';
+      
+        echo '</div></div></div></div>';
     
         echo '<div class="row"> 
             <div class="col-lg-12">';
