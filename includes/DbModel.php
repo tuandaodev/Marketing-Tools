@@ -476,12 +476,12 @@ class DbModel {
         
         $query .= ' ORDER BY vi_id DESC';
         
-        if ($query_type != 'default') {
-            echo "<pre>";
-            print_r($query);
-            echo "<pre>";
-//            exit;
-        }
+//        if ($query_type != 'default') {
+//            echo "<pre>";
+//            print_r($query);
+//            echo "<pre>";
+////            exit;
+//        }
         
         $result = mysqli_query($this->link, $query);
 
