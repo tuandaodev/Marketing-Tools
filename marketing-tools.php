@@ -29,6 +29,10 @@ if (!defined('DB_VISITOR_IP')) {
     define('DB_VISITOR_IP', 'wp_td_visitor_ip');
 }
 
+if (!defined('API_IP_PROVIDER_MAX')) {
+    define('API_IP_PROVIDER_MAX', 7);
+}
+
 require_once('autoload.php');
 require_once('includes/helper.php');
 
@@ -734,7 +738,7 @@ function function_get_ip_information_page() {
                     echo '<td class="center">Empty</td>';
                 }
                 
-                echo '<td class="center"><a href="' . $ip_detail['api_url'] . '" target="_blank" >' . $ip_detail['provider'] . '</a></td>';
+                echo '<td class="center"><a href="' . $ip_detail['api_url'] . '" target="_blank" >' . $ip_detail['provider'] . '</a> | <a href="' . $ip_detail['api_other']['url'] . '" target="_blank" >X</a></td>';
                 
             } else {
 
@@ -782,7 +786,7 @@ function function_get_ip_information_page() {
                                                 <option value="ipapi.co">ipapi.co</option>
                                                 <option value="ip-api.com">ip-api.com</option>
                                                 <option value="ipdata.co">ipdata.co</option>
-                                                <-- <option value="random" selected>Random Provider</option> -->
+                                                <option value="random" selected>Random Provider</option>
                                                 <option value="default">Default</option>
                                             </select>
                                         </div>
@@ -867,7 +871,9 @@ function process_received_IP_API($ip_details) {
     foreach ($ip_details as $key => $ip) {
         $return = json_decode($ip['result'], true);
         $result = [];
-        if (strpos($ip['url'], 'ip-api.com') != false) {    // 2
+        switch ($ip['provider_id']) {
+            case 'ip-api.com':
+            case 2: 
                 if (!is_null($return) && isset($return['query'])) {
                     $result['_ip'] = $return['query'];
                     $result['region'] = $return['regionName'];
@@ -880,28 +886,114 @@ function process_received_IP_API($ip_details) {
                     $result['lon'] = $return['lon'];
                     $result['provider'] = 'ip-api.com';
                     $result['api_url'] = $ip['url'];
+                    $result['api_other'] = getIpRequestURL($result['_ip'], get_random(API_IP_PROVIDER_MAX, 2));
                 }
-        } elseif (strpos($ip['url'], 'ipdata.co') != false) {   // 3
+                break;
+                
+            case 'ipdata.co':
+            case 3:
                 if (!is_null($return) && isset($return['ip'])) {
                     $result['_ip'] = $return['ip'];
-                    $result['region'] = $return['region'];
+                    if (!empty($return['region'])) {
+                        $result['region'] = $return['region'];
+                    } else {
+                        $result['region'] = $return['country_name'];
+                    }
+                    
                     $result['isp'] = $return['organisation'];
                     $result['lat'] = $return['latitude'];
                     $result['lon'] = $return['longitude'];
                     $result['provider'] = 'ipdata.co';
                     $result['api_url'] = $ip['url'];
+                    $result['api_other'] = getIpRequestURL($result['_ip'], get_random(API_IP_PROVIDER_MAX, 3));
                 }
+                break;
+                
+            case 'ipapi.co':
+            case 1:
+                if (!is_null($return) && isset($return['ip'])) {
+                    $result['_ip'] = $return['ip'];
+                    $result['region'] = $return['region'];
+                    $result['isp'] = $return['org'];
+                    $result['lat'] = $return['latitude'];
+                    $result['lon'] = $return['longitude'];
+                    $result['provider'] = 'ipapi.co';
+                    $result['api_url'] = $ip['url'];
+                    $result['api_other'] = getIpRequestURL($result['_ip'], get_random(API_IP_PROVIDER_MAX, 1));
+                } 
+                break;
+            
+            case 'freegeoip.net':
+            case 4:
+                if (!is_null($return) && isset($return['ip'])) {
+                    $result['_ip'] = $return['ip'];
+                    if (!empty($return['region_name'])) {
+                        $result['region'] = $return['region_name'];
+                    } else {
+                        $result['region'] = $return['city'];
+                    }
                     
-        } else {    // 1 ipapi.co
-            if (!is_null($return) && isset($return['ip'])) {
-                $result['_ip'] = $return['ip'];
-                $result['region'] = $return['region'];
-                $result['isp'] = $return['org'];
-                $result['lat'] = $return['latitude'];
-                $result['lon'] = $return['longitude'];
-                $result['provider'] = 'ipapi.co';
-                $result['api_url'] = $ip['url'];
-            } 
+                    $result['isp'] = ''; // $return['org'];
+                    $result['lat'] = $return['latitude'];
+                    $result['lon'] = $return['longitude'];
+                    $result['provider'] = 'freegeoip.net';
+                    $result['api_url'] = $ip['url'];
+                    $result['api_other'] = getIpRequestURL($result['_ip'], get_random(API_IP_PROVIDER_MAX, 4));
+                } 
+                break;
+                
+            case 'ipinfo.io':
+            case 5:
+                if (!is_null($return) && isset($return['ip'])) {
+                    $result['_ip'] = $return['ip'];
+                    if (!empty($return['region_name'])) {
+                        $result['region'] = $return['region'];
+                    } else {
+                        $result['region'] = $return['city'];
+                    }
+                    
+                    $result['isp'] = $return['org']; // $return['org'];
+                    $temp = explode(',', $return['loc']);
+                    $result['lat'] = $temp[0];
+                    $result['lon'] = $temp[1];
+                    $result['provider'] = 'ipinfo.io';
+                    $result['api_url'] = $ip['url'];
+                    $result['api_other'] = getIpRequestURL($result['_ip'], get_random(API_IP_PROVIDER_MAX, 5));
+                } 
+                break;
+                
+            case 'iplocate.io':
+            case 6:
+                if (!is_null($return) && isset($return['ip'])) {
+                    $result['_ip'] = $return['ip'];
+                    $result['region'] = $return['city'];
+                    $result['isp'] = $return['org']; // $return['org'];
+                    $result['lat'] = $return['latitude'];
+                    $result['lon'] = $return['longitude'];
+                    $result['provider'] = 'iplocate.io';
+                    $result['api_url'] = $ip['url'];
+                    $result['api_other'] = getIpRequestURL($result['_ip'], get_random(API_IP_PROVIDER_MAX, 6));
+                } 
+                break;
+                
+            case 'extreme-ip-lookup.com':
+            case 7:
+                if (!is_null($return) && isset($return['query'])) {
+                    $result['_ip'] = $return['query'];
+                    $result['region'] = $return['region'];
+                    if (!empty($return['isp'])) {
+                        $result['isp'] = $return['isp']; 
+                    } else {
+                        $result['isp'] = $return['org']; // $return['org'];
+                    }
+                    
+                    $result['lat'] = $return['lat'];
+                    $result['lon'] = $return['lon'];
+                    $result['provider'] = 'extreme-ip';
+                    $result['api_url'] = $ip['url'];
+                    $result['api_other'] = getIpRequestURL($result['_ip'], get_random(API_IP_PROVIDER_MAX, 7));
+                } 
+                break;
         }
         
         if (!empty($result)) {
@@ -961,19 +1053,20 @@ function getIpRequestURL($ip, $provider = '', $different = false) {
     
     if ($different == false) {
         if ($provider == 'default' || $provider == '') {
-        $api = 2;
+            $api = 2;
         } elseif ($provider == 'random') {
-            $api = rand(1, 3);
+            $api = rand(1, API_IP_PROVIDER_MAX);
         } else {
             $api = $provider;
         }
     } else {
-        for ($i = 1; $i <= 3; $i++) {
-            if ($i != $provider) {
-               $api = $i;
-               break;
-            }
-        }
+        $api = get_random(API_IP_PROVIDER_MAX, $provider);
+//        for ($i = 1; $i <= API_IP_PROVIDER_MAX; $i++) {
+//            if ($i != $provider) {
+//               $api = $i;
+//               break;
+//            }
+//        }
     }
     
     switch ($api) {
@@ -992,6 +1085,27 @@ function getIpRequestURL($ip, $provider = '', $different = false) {
             case 2:
                 $url = "http://ip-api.com/json/{$ip}";
                 break;
+            
+            case 'freegeoip.net':
+            case 4:
+                $url = "http://freegeoip.net/json/{$ip}";
+                break;
+            
+            case 'ipinfo.io':
+            case 5:
+                $url = "http://ipinfo.io/{$ip}/json?token=aa50a2558978ba";
+                break;
+            
+            case 'iplocate.io':
+            case 6:
+                $url = "https://www.iplocate.io/api/lookup/{$ip}";
+                break;
+            
+            case 'extreme-ip':
+            case 7:
+                $url = "http://extreme-ip-lookup.com/json/{$ip}";
+                break;
+                
     }
     
     $return['ip'] = $ip;
@@ -1000,215 +1114,6 @@ function getIpRequestURL($ip, $provider = '', $different = false) {
     
     return $return;
     
-}
-
-function getIpInfo1($ip) {
-    
-    $url = "https://ipapi.co/{$ip}/json";
-    
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-      "Accept: application/json"
-    ));
-
-    $response = curl_exec($ch);
-    curl_close($ch);
-    
-    $return = json_decode($response, true);
-    if (!is_null($return) && isset($return['ip'])) {
-        $result['ip'] = $return['ip'];
-        $result['region'] = $return['region'];
-        $result['isp'] = $return['org'];
-        $result['lat'] = $return['latitude'];
-        $result['lon'] = $return['longitude'];
-        $result['provider'] = 'ipapi.co';
-        $result['api_url'] = $url;
-        return $result;
-    } else {
-        return false;
-    }
-}
-
-
-function getIpInfo2($ip) {
-    
-    $url = "http://ip-api.com/json/{$ip}";
-    
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-      "Accept: application/json"
-    ));
-
-    $response = curl_exec($ch);
-    curl_close($ch);
-    
-    $return = json_decode($response, true);
-    
-    if (!is_null($return) && isset($return['query'])) {
-        $result['ip'] = $return['query'];
-        $result['region'] = $return['regionName'];
-        if (!empty($return['org'])) {
-            $result['isp'] = $return['org'];
-        } else {
-            $result['isp'] = $return['isp'];
-        }
-        $result['lat'] = $return['lat'];
-        $result['lon'] = $return['lon'];
-        $result['provider'] = 'ip-api.com';
-        $result['api_url'] = $url;
-        return $result;
-    } else {
-        return false;
-    }
-}
-
-function getIpInfo3($ip) {
-    
-    $url = "https://api.ipdata.co/{$ip}";
-
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-      "Accept: application/json"
-    ));
-
-    $response = curl_exec($ch);
-    curl_close($ch);
-    
-    $return = json_decode($response, true);
-    if (!is_null($return) && isset($return['ip'])) {
-        $result['ip'] = $return['ip'];
-        $result['region'] = $return['region'];
-        $result['isp'] = $return['organisation'];
-        $result['lat'] = $return['latitude'];
-        $result['lon'] = $return['longitude'];
-        $result['provider'] = 'ipdata.co';
-        $result['api_url'] = $url;
-        return $result;
-    } else {
-        return false;
-    }
-}
-
-
-function getIpInfo($ip, $provider = 'default') {
-    
-    if ($provider == 'default') {
-        $ip_info = getIpInfo2($ip);
-        if ($ip_info == false) {
-            $ip_info = getIpInfo1($ip);
-            if ($ip_info == false) {
-                $ip_info = getIpInfo3($ip);
-            }
-        }
-        return $ip_info;
-    } elseif ($provider == 'random') {
-        
-        $random = rand(1,3);
-        
-        switch ($random) {
-            case 'ipapi.co':
-            case 1:
-                $ip_info = getIpInfo1($ip);
-                break;
-            
-            case 'ipdata.co':
-            case 3:
-                $ip_info = getIpInfo3($ip);
-                break;
-            
-            case 'ip-api.com':
-            case 2:
-            default:
-                $ip_info = getIpInfo2($ip);
-                break;
-        }
-        
-        return $ip_info;
-        
-    } else {
-        switch ($provider) {
-            case 'ipapi.co':
-            case 1:
-                $ip_info = getIpInfo1($ip);
-                break;
-            
-            case 'ipdata.co':
-            case 3:
-                $ip_info = getIpInfo3($ip);
-                break;
-            
-            case 'ip-api.com':
-            case 2:
-            default:
-                $ip_info = getIpInfo2($ip);
-                break;
-        }
-        
-        return $ip_info;
-    }
-}
-
-function getAddressGoogleAPI($lat,$lon) {
-    $details = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lon}&key=***REMOVED***"), true);
-    
-    if (isset($details['results'])) {
-        return $details['results'][0]['formatted_address'];
-    } else {
-        return false;
-    }
-}
-
-
-function getAddressGoogleAPI2($lat,$lon) {
-    
-    if ( empty($lat) || empty($lon)) {
-        return false;
-    }
-    
-    $url = "https://maps.googleapis.com/maps/api/geocode/json?latlng={$lat},{$lon}&key=***REMOVED***";
-
-    $ch = curl_init();
-
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_HEADER, FALSE);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-      "Accept: application/json"
-    ));
-
-    $response = curl_exec($ch);
-    curl_close($ch);
-    
-    $return = json_decode($response, true);
-    
-    if (!is_null($return) && isset($return['results'])) {
-        
-        if (is_array($return['results'])) {
-            return $return['results'][0]['formatted_address'];
-        } else {
-            echo '<pre>';
-            print_r($return);
-            echo '</pre>';
-            exit;
-        }
-    } else {
-        return getAddressGoogleAPI($lat, $lon);
-    }
 }
 
 function runRequests($url_array, $thread_width = 8) {
@@ -1276,4 +1181,50 @@ function runRequests($url_array, $thread_width = 8) {
     return $results;
 }
 
+function function_testing_page() {
+    
+    $ip = '37.1.207.70';
+    getIpSafe($ip);
+}
+
+function getIpSafe($ip) {
+    
+    $url = "http://v2.api.iphub.info/ip/{$ip}";
+    
+    $ch = curl_init();
+
+    $header['X-Key'] = "MTIwNjpnQVppcnJGbW1YNXJvVER0MzVzdDFSRHdtNlBGSUNudQ==";
+    
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, TRUE);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'X-Key: MTIwNjpnQVppcnJGbW1YNXJvVER0MzVzdDFSRHdtNlBGSUNudQ=='
+));
+//    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+//      "Accept: application/json"
+//    ));
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $return = json_decode($response, true);
+    
+    echo "<pre>";
+    print_r($response);
+    echo "<pre>";
+    exit;
+    if (!is_null($return) && isset($return['ip'])) {
+        $result['ip'] = $return['ip'];
+        $result['region'] = $return['region'];
+        $result['isp'] = $return['org'];
+        $result['lat'] = $return['latitude'];
+        $result['lon'] = $return['longitude'];
+        $result['provider'] = 'ipapi.co';
+        $result['api_url'] = $url;
+        return $result;
+    } else {
+        return false;
+    }
+}
 ?>

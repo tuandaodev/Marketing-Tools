@@ -170,4 +170,10 @@ function getClientAgent()
     return isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '';
 }
 
+function get_random($max, $different, $min = 1) {
+    do {
+      $num = rand($min, $max);
+    } while ($num == $different);
+    return $num;
+}
 ?>
