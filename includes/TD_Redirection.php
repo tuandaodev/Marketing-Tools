@@ -54,12 +54,21 @@ if (!class_exists('TD_Redirection')) {
                 $ip = getClientIP();
                 $agent = getClientAgent();
                 
+                $ip_safe = getIpSafe($ip);
+                if ($ip_safe != false) {
+                    $log = $ip_safe['countryName'] . ' | ' . $ip_safe['isp'] . ' | Block: ' . $ip_safe['block'];
+                } else {
+                    $log = $agent;
+                }
                 
-                if ($exists['re_active'] == 0 || $check_referer) {
-                    $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1);
+                if (isset($ip_safe['block']) && $ip_safe['block'] != 0) {
+                    $dbModel->log_client_IP($exists['re_id'], $ip, $log, 2);
+                    $this->redirection_by_url('https://iphub.info/api');
+                } elseif ($exists['re_active'] == 0 || $check_referer) {
+                    $dbModel->log_client_IP($exists['re_id'], $ip, $log, 1);
                     $this->redirection_by_url(urldecode($exists['re_destination']));
                 } else {
-                    $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 0);
+                    $dbModel->log_client_IP($exists['re_id'], $ip, $log, 0);
                 }
             } 
         }

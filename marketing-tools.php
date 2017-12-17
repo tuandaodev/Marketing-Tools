@@ -1183,8 +1183,13 @@ function runRequests($url_array, $thread_width = 8) {
 
 function function_testing_page() {
     
-    $ip = '37.1.207.70';
-    getIpSafe($ip);
+    $ip = '85.17.24.66';
+    $test = getIpSafe($ip);
+    
+    echo "<pre>";
+    print_r($test);
+    echo "<pre>";
+    exit;
 }
 
 function getIpSafe($ip) {
@@ -1193,36 +1198,20 @@ function getIpSafe($ip) {
     
     $ch = curl_init();
 
-    $header['X-Key'] = "MTIwNjpnQVppcnJGbW1YNXJvVER0MzVzdDFSRHdtNlBGSUNudQ==";
-    
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-    curl_setopt($ch, CURLOPT_HEADER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, FALSE);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
         'X-Key: MTIwNjpnQVppcnJGbW1YNXJvVER0MzVzdDFSRHdtNlBGSUNudQ=='
-));
-//    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-//      "Accept: application/json"
-//    ));
+    ));
 
     $response = curl_exec($ch);
     curl_close($ch);
     
     $return = json_decode($response, true);
     
-    echo "<pre>";
-    print_r($response);
-    echo "<pre>";
-    exit;
     if (!is_null($return) && isset($return['ip'])) {
-        $result['ip'] = $return['ip'];
-        $result['region'] = $return['region'];
-        $result['isp'] = $return['org'];
-        $result['lat'] = $return['latitude'];
-        $result['lon'] = $return['longitude'];
-        $result['provider'] = 'ipapi.co';
-        $result['api_url'] = $url;
-        return $result;
+        return $return;
     } else {
         return false;
     }
