@@ -41,21 +41,21 @@ class DbModel {
         
     }
     
-    public function getAllStoreRedirection() {
-        
-        $query = "SELECT * FROM " . DB_REDIRECTION . ' INNER JOIN wp_terms ON re_source = wp_terms.term_id WHERE re_type = "store"';
-        
-        $result = mysqli_query($this->link, $query);
-
-        if ($result) {
-            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        } else {
-            $return = [];
-        }
-
-        return $return;
-        
-    }
+//    public function getAllStoreRedirection() {
+//        
+//        $query = "SELECT * FROM " . DB_REDIRECTION . ' INNER JOIN wp_terms ON re_source = wp_terms.term_id WHERE re_type = "store"';
+//        
+//        $result = mysqli_query($this->link, $query);
+//
+//        if ($result) {
+//            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
+//        } else {
+//            $return = [];
+//        }
+//
+//        return $return;
+//        
+//    }
     
     public function getAllStoreRedirection_IpCount() {
         
@@ -63,6 +63,7 @@ class DbModel {
                     re_id, 
                     re_source, 
                     re_destination, 
+                    re_des_proxy,
                     re_type, 
                     re_active, 
                     name, 
@@ -92,28 +93,29 @@ class DbModel {
         
     }
     
-    public function getAllCouponRedirection() {
-        
-        $query = "SELECT re_id, re_source, re_destination, re_type, re_active, post_title as 'name', re_count_non, re_count_redirect, re_count FROM " . DB_REDIRECTION . ' INNER JOIN wp_posts ON re_source = wp_posts.ID WHERE re_type = "coupon"';
-        
-        $result = mysqli_query($this->link, $query);
-
-        if ($result) {
-            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
-        } else {
-            $return = [];
-        }
-
-        return $return;
-        
-    }
+//    public function getAllCouponRedirection() {
+//        
+//        $query = "SELECT re_id, re_source, re_destination, re_des_proxy, re_type, re_active, post_title as 'name', re_count_non, re_count_redirect, re_count FROM " . DB_REDIRECTION . ' INNER JOIN wp_posts ON re_source = wp_posts.ID WHERE re_type = "coupon"';
+//        
+//        $result = mysqli_query($this->link, $query);
+//
+//        if ($result) {
+//            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
+//        } else {
+//            $return = [];
+//        }
+//
+//        return $return;
+//        
+//    }
     
     public function getAllCouponRedirection_IpCount() {
         
         $query = '  SELECT 
                         re_id, 
                         re_source, 
-                        re_destination, 
+                        re_destination,
+                        re_des_proxy,
                         re_type, 
                         re_active, 
                         post_title as name, 
@@ -143,12 +145,12 @@ class DbModel {
         
     }
     
-    public function add_redirection($source, $destination, $type = 'post', $active = 1, $source_multi = '') {
+    public function add_redirection($source, $destination, $des_proxy = '404', $type = 'post', $active = 1, $source_multi = '') {
         
         $exists = $this->check_exists_redirection($source, $type);
         
         if ($exists != false) {
-            $this->update_redirection($exists['re_id'], $source, $destination, $type, $source_multi);
+            $this->update_redirection($exists['re_id'], $source, $destination, $des_proxy, $type, $source_multi);
             return false;
         } else {
             
@@ -177,11 +179,12 @@ class DbModel {
                 $parent = 0;
             }
             
-            $query = '  INSERT INTO ' . DB_REDIRECTION . '(re_source, re_source_multi, re_destination, re_type, re_active, re_count_non, re_count_redirect, re_count, re_parent)
+            $query = '  INSERT INTO ' . DB_REDIRECTION . '(re_source, re_source_multi, re_destination, re_des_proxy, re_type, re_active, re_count_non, re_count_redirect, re_count, re_parent)
                         VALUES (
                         ' . $source . ',
                         "' . urlencode($source_multi) . '",
                         "' . urlencode($destination) . '",
+                        "' . urlencode($des_proxy) . '",
                         "' . $type . '",'
                         . $active . 
                         ', 0, 0, 0, ' . $parent . ')';
@@ -195,23 +198,23 @@ class DbModel {
         $query = 'SELECT * FROM ' . DB_REDIRECTION . ' WHERE re_source = ' . $source . ' AND re_type = "' . $type . '"';
         
         $result = mysqli_query($this->link, $query);
-
-        $return = mysqli_fetch_assoc($result);
-
-        if (empty($return)) {
-            return false;
-        }
         
-        return $return;
+        if ($result) {
+            $return = mysqli_fetch_assoc($result);
+            return $return;
+        } else {
+            return [];
+        }
     }
 
-    public function update_redirection($re_id, $source, $destination, $type = 'post', $source_multi = '') {
+    public function update_redirection($re_id, $source, $destination, $des_proxy, $type = 'post', $source_multi = '') {
         
         $query = '  UPDATE ' . DB_REDIRECTION . '
                     SET 
                     re_source = ' . $source . ',
                     re_source_multi = "' . urlencode($source_multi) . '",
                     re_destination = "' . urlencode($destination) . '",
+                    re_des_proxy = "' . urlencode($des_proxy) . '",
                     re_type = "' . $type . '",
                     re_active = 1
                     WHERE re_id = ' . $re_id;
@@ -222,11 +225,12 @@ class DbModel {
         
     }
     
-    public function update_redirection_part($re_id, $destination, $active) {
+    public function update_redirection_part($re_id, $destination, $des_proxy = '404', $active) {
         
         $query = '  UPDATE ' . DB_REDIRECTION . '
                     SET 
                     re_destination = "' . urlencode($destination) . '",
+                    re_des_proxy = "' . urlencode($des_proxy) . '",
                     re_active = ' . $active . '
                     WHERE re_id = ' . $re_id;
 
@@ -281,7 +285,7 @@ class DbModel {
         
     }
     
-    public function log_client_IP($re_id, $ip, $agent = '', $redirected = 0) {
+    public function log_client_IP($re_id, $ip, $agent = '', $redirected = 0, $proxy_log = '') {
         
 //        if (count($ip) < 5) return;
         
@@ -297,12 +301,13 @@ class DbModel {
 //            }
 //            $query .= 'WHERE vi_id = ' . $exists['vi_id'];
 //        } else {
-            $query = '  INSERT INTO ' . DB_VISITOR_IP . ' (vi_ip, vi_url, vi_date, vi_notes, vi_redirected)
+            $query = '  INSERT INTO ' . DB_VISITOR_IP . ' (vi_ip, vi_url, vi_date, vi_notes, vi_proxy, vi_redirected)
                         VALUES (
                         "' . $ip . '",
                         ' . $re_id . ',
                         Now(),
                         "' . $agent . '",
+                        "' . $proxy_log . '",
                         ' . $redirected . '
                         )';
             
@@ -341,11 +346,13 @@ class DbModel {
             $query .= "AND wp_terms.name like '%" . $store_name . "%'";
         }
         $result = mysqli_query($this->link, $query);
-
-        $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
-
-        return $return;
         
+        if ($result) {
+            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            return $return;
+        } else {
+            return [];
+        }
     }
     
     public function getStoreInfoByStoreID($store_id = '') {
@@ -353,15 +360,13 @@ class DbModel {
         $query = 'SELECT * FROM wp_terms WHERE term_id = ' . $store_id;
         
         $result = mysqli_query($this->link, $query);
-
-        $return = mysqli_fetch_assoc($result);
-
-        if (empty($return)) {
+        
+        if ($result) {
+            $return = mysqli_fetch_assoc($result);
+            return $return;
+        } else {
             return false;
         }
-        
-        return $return;
-        
     }
     
     public function getAllVistorIpTracking($query_type = 'default', $input = []) {

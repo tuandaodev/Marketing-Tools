@@ -111,16 +111,16 @@ jQuery(document).ready(function($) {
     
     var table = $('#dataTables-example').DataTable();
     
-    table.column( 6 ).visible( false );
+    table.columns( [ 6, 7 ] ).visible( false, false );
     
     $('li a').click(function(e) {
         
 //         var table = $('#dataTables-example').DataTable();
         
-        if ($(this).text() == 'Hide Agent Info') {
-            table.column( 6 ).visible( false );
+        if ($(this).text() == 'Hide More Info') {
+            table.columns( [ 6, 7 ] ).visible( false, false );
         } else {
-            table.column( 6 ).visible( true );
+            table.columns( [ 6, 7 ] ).visible( true, true );
         }
         
       });

@@ -108,11 +108,12 @@ function ja_ajax_update_redirection() {
     
     $re_id = $input['reid'];
     $destination = $input['redirect_url'];
+    $des_proxy = $input['proxy_url'];
     $active = $input['status'];
     
     $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
     
-    $result = $dbModel->update_redirection_part($re_id, $destination, $active);
+    $result = $dbModel->update_redirection_part($re_id, $destination, $des_proxy, $active);
     
     $return['data'] = $result;
     $return['input'] = $input;

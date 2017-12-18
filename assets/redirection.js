@@ -75,6 +75,7 @@ jQuery(document).ready(function($) {
             function(data) {
                 $('#close-update-modal').click();
                 $("#redirect_url_" + data.data.input.reid).html(data.data.input.redirect_url);
+                $("#proxy_url_" + data.data.input.reid).html(data.data.input.proxy_url);
                 if (data.data.input.status == "1") {
                     $("#re_active_" + data.data.input.reid).prop('checked', true);
                     $("#re_active_" + data.data.input.reid).parent().attr('class', 'toggle btn btn-xs btn-primary');

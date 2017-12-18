@@ -176,4 +176,29 @@ function get_random($max, $different, $min = 1) {
     } while ($num == $different);
     return $num;
 }
+
+function getIpSafe($ip) {
+    
+    $url = "http://v2.api.iphub.info/ip/{$ip}";
+    
+    $ch = curl_init();
+
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+    curl_setopt($ch, CURLOPT_HEADER, FALSE);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+        'X-Key: MTIwNjpnQVppcnJGbW1YNXJvVER0MzVzdDFSRHdtNlBGSUNudQ=='
+    ));
+
+    $response = curl_exec($ch);
+    curl_close($ch);
+    
+    $return = json_decode($response, true);
+    
+    if (!is_null($return) && isset($return['ip'])) {
+        return $return;
+    } else {
+        return $return;
+    }
+}
 ?>
