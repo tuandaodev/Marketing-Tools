@@ -69,11 +69,11 @@ if (!class_exists('TD_Redirection')) {
                         $proxy_log = $ip_safe;
                     }
 
-                    $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1, $proxy_log);
-                    
                     if (isset($ip_safe['block']) && $ip_safe['block'] == 1) {
+                        $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 2, $proxy_log);
                         $this->redirection_by_url(urldecode($exists['re_des_proxy']));
                     } else {
+                        $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1, $proxy_log);
                         $this->redirection_by_url(urldecode($exists['re_destination']));
                     }
                     

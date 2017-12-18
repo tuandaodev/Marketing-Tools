@@ -277,7 +277,12 @@ function function_visitor_ip_tracking_page() {
                 echo '<td class="center">' . $ip_log['vi_date'] . '</td>';
                 echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
                 echo '<td class="center">' . $ip_log['vi_proxy'] . '</td>';
-                echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
+                
+                if ($ip_log['vi_redirected'] == 2) {
+                    echo '<td class="center" style="text-align: center;">Blocked</td>';
+                } else {
+                    echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
+                }
 
             echo '</tr>';
         }
