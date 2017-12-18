@@ -478,7 +478,7 @@ class DbModel {
     
     public function getAffiliateAccountByCode($code) {
         
-        $query = "SELECT * FROM wp_td_affiliate WHERE aff_code = " . $code;
+        $query = "SELECT * FROM wp_td_affiliate WHERE aff_code = '" . $code . "'";
         
         $result = mysqli_query($this->link, $query);
 
