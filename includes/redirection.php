@@ -32,7 +32,13 @@ function function_redirection_page() {
                         
     if (isset($_POST['process_addNewCouponRedirection'])) {
         
-        $add = $dbModel->add_redirection($_POST['post_id'], $_POST['aff_account'], $_POST['post_redirect_url'], 'coupon');
+        foreach ($aff_accounts as $aff) {
+            if ($aff['aff_id'] == $_POST['post_aff_account']) {
+                $aff_account = $aff;
+                break;
+            }
+        }
+        $add = $dbModel->add_redirection($_POST['post_id'], $_POST['post_aff_account'], $_POST['post_redirect_url'], 'coupon');
         
         if ($add) {
             $string_add = '<font color="red">Added</font>';
@@ -43,7 +49,7 @@ function function_redirection_page() {
         echo '<div class="alert alert-success">
                         <strong>' . $string_add . ' the redirection successful. Coupon ID: <font color="red">' . $_POST['post_id'] . '</font><br/>
                             URL: <font color="blue">' . $_POST['post_redirect_url'] . '</font> <br/>
-                            Aff ID: <font color="blue">' . $_POST['aff_account'] . '</font> <br/>
+                            Aff ID: '. $aff_account['aff_id'] .' | Name: '. $aff_account['aff_name'] .' | Code: <font color="blue">' . $aff_account['aff_code'] . '</font> <br/>
                             </strong>
             </div>';
         
@@ -65,10 +71,10 @@ function function_redirection_page() {
     
     echo '<div class="form-group">
                                         <label>Affiliate Account</label>
-                                            <select class="form-control" id="aff_account" name="aff_account">';
+                                            <select class="form-control" id="post_aff_account" name="post_aff_account">';
 
                             foreach ($aff_accounts as $aff) {
-                                                    echo '<option value="' . $aff['aff_id'] . '">' . $aff['aff_name'] . ': ' . $aff['aff_code'] . '</option>';
+                                                    echo '<option value="' . $aff['aff_id'] . '">' . $aff['aff_view'] . '</option>';
                                                 }
                                             echo '</select>
                                         </div>';
@@ -101,7 +107,7 @@ function function_redirection_page() {
     
     if (isset($_POST['process_addNewStoreRedirection'])) {
         
-        $add = $dbModel->add_redirection($_POST['store_id'], $_POST['aff_account'], $_POST['store_redirect_url'], 'store');
+        $add = $dbModel->add_redirection($_POST['store_id'], $_POST['store_aff_account'], $_POST['store_redirect_url'], 'store');
         
         if ($add) {
             $string_add = '<font color="red">Added</font>';
@@ -112,7 +118,7 @@ function function_redirection_page() {
         echo '<div class="alert alert-success">
                         <strong>' . $string_add . ' the redirection successful. Coupon ID: <font color="red">' . $_POST['store_id'] . '</font><br/>
                             URL: <font color="blue">' . $_POST['store_redirect_url'] . '</font> <br/>
-                            Aff ID: <font color="blue">' . $_POST['aff_account'] . '</font>
+                            Aff ID: <font color="blue">' . $_POST['store_aff_account'] . '</font>
                             </strong>
             </div>';
         
@@ -134,9 +140,9 @@ function function_redirection_page() {
         
             echo '<div class="form-group">
                                         <label>Affiliate Account</label>
-                                            <select class="form-control" id="aff_account" name="aff_account">';
+                                            <select class="form-control" id="store_aff_account" name="store_aff_account">';
 
-                            foreach ($aff_accounts as $aff) {
+                                            foreach ($aff_accounts as $aff) {
                                                     echo '<option value="' . $aff['aff_id'] . '">' . $aff['aff_name'] . ': ' . $aff['aff_code'] . '</option>';
                                                 }
                                             echo '</select>
@@ -181,6 +187,7 @@ function function_redirection_page() {
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">PID</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Type</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Title</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; display:none;">AffID</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Affiliate</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Redirect URL</th>
                                    <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Proxy URL</th> -->
@@ -225,7 +232,8 @@ function function_redirection_page() {
                 echo '<td class="center">' . $redirect['name'] . '</td>';
             }
             
-            echo '<td id="aff_' . $redirect['re_id'] . '">' . $redirect['aff'] . '</td>';
+            echo '<td id="aff_id_' . $redirect['re_id'] . '" style="display:none;">' . $redirect['aff_id'] . '</td>';
+            echo '<td id="aff_name_' . $redirect['re_id'] . '">' . $redirect['aff_view'] . '</td>';
             
             echo '<td id="redirect_url_' . $redirect['re_id'] . '">' . urldecode($redirect['re_destination']) . '</td>';
             

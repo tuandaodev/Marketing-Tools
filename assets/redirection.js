@@ -31,7 +31,7 @@ jQuery(document).ready(function($) {
        $.each(columnHeadings, function(i, columnHeader) {
            var formGroup;
            var columnID = columnHeader.replace(/ /g, '_').toLowerCase();
-           if (columnHeader == "ReID" || columnHeader == "PID") {
+           if (columnHeader == "ReID" || columnHeader == "PID" || columnHeader == "AffID") {
                formGroup = $('<div class="form-group hidden"></div>');
            } else {
                formGroup = $('<div class="form-group"></div>');
@@ -54,14 +54,24 @@ jQuery(document).ready(function($) {
                
                 formGroup.append(string); 
                 
+            } else if (columnHeader == "Affiliate") {
+                formGroup.append('<select class="form-control" name="update_aff_account" id="update_aff_account"></select>'); 
             } else {
                 formGroup.append('<input class="form-control" name="'+columnID+'" id="'+columnID+'" value="'+columnValues[i]+'" '+ disableInput +'/>'); 
+
             }
             
             modalForm.append(formGroup);
        });
        modalBody.append(modalForm);
        $('.modal-body').html(modalBody);
+        
+        var $options = $("#post_aff_account > option").clone();
+
+        $('#update_aff_account').append($options);
+        
+        $('#update_aff_account').val($('#affid').val());
+        
      });
      
      $('.modal-footer .btn-primary').click(function() {
@@ -74,7 +84,8 @@ jQuery(document).ready(function($) {
             }, 
             function(data) {
                 $('#close-update-modal').click();
-                $("#redirect_url_" + data.data.input.reid).html(data.data.input.redirect_url);
+                $("#aff_id_" + data.data.input.reid).html(data.data.input.update_aff_account);
+                $("#aff_name_" + data.data.input.reid).html($("#post_aff_account option[value='" + data.data.input.update_aff_account + "']").text());
                 $("#proxy_url_" + data.data.input.reid).html(data.data.input.proxy_url);
                 if (data.data.input.status == "1") {
                     $("#re_active_" + data.data.input.reid).prop('checked', true);

@@ -274,7 +274,7 @@ function function_marketing_options_page() {
         echo '<div class="alert alert-success">
                         <strong>' . $string_add . ' the affiliate account successful.<br/>
                             Aff Name: <font color="blue">' . $_POST['aff_name'] . '</font> <br/>
-                            Aff Code: <font color="blue">' . $_POST['aff_code'] . '</font> <br/>
+                            Aff Code: <font color="blue">' .  $_POST['aff_code'] . '</font> <br/>
                             
                             </strong>
             </div>';

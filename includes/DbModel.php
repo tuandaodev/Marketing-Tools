@@ -46,7 +46,8 @@ class DbModel {
         $query = 'SELECT 
                     re_id, 
                     re_source, 
-                    concat(aff_name, ": ", aff_code) as aff,
+                    aff_id,
+                    concat(aff_name, ": ", aff_code) as aff_view,
                     re_destination, 
                     re_type, 
                     re_active, 
@@ -83,7 +84,8 @@ class DbModel {
         $query = '  SELECT 	
                         re_id, 
                         re_source, 
-                        concat(aff_name, ": ", aff_code) as aff,
+                        aff_id,
+                        concat(aff_name, ": ", aff_code) as aff_view,
                         re_destination,
                         re_type, 
                         re_active, 
@@ -428,7 +430,7 @@ class DbModel {
     
     public function getAllAffiliateAccount() {
         
-        $query = "SELECT * FROM wp_td_affiliate";
+        $query = 'SELECT * , concat(aff_name, ": ", aff_code) as aff_view FROM wp_td_affiliate';
         
         $result = mysqli_query($this->link, $query);
 
@@ -445,6 +447,22 @@ class DbModel {
     public function getAffiliateAccountByID($id) {
         
         $query = "SELECT * FROM wp_td_affiliate WHERE aff_id = " . $id;
+        
+        $result = mysqli_query($this->link, $query);
+
+        if ($result) {
+            $return = mysqli_fetch_assoc($result);
+        } else {
+            $return = false;
+        }
+        
+        return $return;
+        
+    }
+    
+    public function getAffiliateAccountByName($name) {
+        
+        $query = "SELECT * FROM wp_td_affiliate WHERE aff_name = " . $name;
         
         $result = mysqli_query($this->link, $query);
 

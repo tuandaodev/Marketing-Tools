@@ -71,10 +71,13 @@ if (!class_exists('TD_Redirection')) {
 
                     if (isset($ip_safe['block']) && $ip_safe['block'] == 1) {
                         $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 2, $proxy_log);
-                        $this->redirection_by_url(urldecode($exists['re_des_proxy']));
+                        $this->redirection_by_url(urldecode($exists['re_destination']));
                     } else {
                         $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1, $proxy_log);
-                        $this->redirection_by_url(urldecode($exists['re_destination']));
+                        $aff = $dbModel->getAffiliateAccountByID($exists['re_aff']);
+                        $aff_link = $this->build_aff_url($aff['aff_code'], $exists['re_destination']);
+                        
+                        $this->redirection_by_url($aff_link);
                     }
                     
                 } else {
@@ -101,6 +104,16 @@ if (!class_exists('TD_Redirection')) {
                     exit;
                 }
             }
+        }
+        
+        public function build_aff_url($aff_code, $url) {
+            
+            $base_url = "http://go.masoffer.net/v0/{$aff_code}?url=";
+            
+            $builded_url = $base_url . urlencode($url);
+            
+            return $builded_url;
+            
         }
 
     }

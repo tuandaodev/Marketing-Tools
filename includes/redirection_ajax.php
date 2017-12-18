@@ -108,12 +108,13 @@ function ja_ajax_update_redirection() {
     
     $re_id = $input['reid'];
     $destination = $input['redirect_url'];
-    $des_proxy = $input['proxy_url'];
+//    $des_proxy = $input['proxy_url'];
     $active = $input['status'];
+    $update_aff_account = $input['update_aff_account'];
     
     $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
     
-    $result = $dbModel->update_redirection_part($re_id, $destination, $des_proxy, $active);
+    $result = $dbModel->update_redirection_part($re_id, $update_aff_account, $destination, $active);
     
     $return['data'] = $result;
     $return['input'] = $input;
@@ -121,8 +122,8 @@ function ja_ajax_update_redirection() {
     wp_send_json_success( $return );
 }
 
-add_action( 'wp_ajax_update_htmlfile', 'ja_ajax_update_htmlfile' );
-add_action( 'wp_ajax_nopriv_update_htmlfile', 'ja_ajax_update_htmlfile' );
+add_action( 'wp_ajax_update_redirection', 'ja_ajax_update_redirection' );
+add_action( 'wp_ajax_nopriv_update_redirection', 'ja_ajax_update_redirection' );
 
 function ja_ajax_update_htmlfile() {
     
