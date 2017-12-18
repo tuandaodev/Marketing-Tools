@@ -121,5 +121,63 @@ function ja_ajax_update_redirection() {
     wp_send_json_success( $return );
 }
 
-add_action( 'wp_ajax_update_redirection', 'ja_ajax_update_redirection' );
-add_action( 'wp_ajax_nopriv_update_redirection', 'ja_ajax_update_redirection' );
+add_action( 'wp_ajax_update_htmlfile', 'ja_ajax_update_htmlfile' );
+add_action( 'wp_ajax_nopriv_update_htmlfile', 'ja_ajax_update_htmlfile' );
+
+function ja_ajax_update_htmlfile() {
+    
+    if (!isset($_POST['data'])) {
+        return false;
+    }
+    
+    foreach ($_POST['data'] as $data) {
+        $input[$data['name']] = $data['value'];
+    }
+    
+    $file_name = $input['file_name'];
+    
+    // Change name
+    if ($file_name != $input['file_name_old']) {
+        unlink($input['file_path']);
+    }
+
+    // process file_name
+    if (strpos($file_name, '.htm') !== false) {
+    } else {
+        $file_name = $file_name . '.html';
+    }
+    $file_name = str_replace(' ', '-', $file_name);
+    
+    write_redirection_2html($file_name, $input['redirect_url']);
+    
+    $return['no'] = $input['no'];
+    $return['file_name'] = $file_name;
+    $return['file_path'] = get_home_path() . '/' . $file_name;
+    $return['file_url'] = home_url() . '/' . $file_name;
+    $return['redirect_url'] = $input['redirect_url'];
+    
+    wp_send_json_success( $return );
+}
+
+add_action( 'wp_ajax_update_htmlfile', 'ja_ajax_update_htmlfile' );
+add_action( 'wp_ajax_nopriv_update_htmlfile', 'ja_ajax_update_htmlfile' );
+
+function ja_ajax_delete_htmlfile() {
+    
+    if (!isset($_POST['data'])) {
+        return false;
+    }
+    
+    if (isset($_POST['data']['file_path']) && !empty($_POST['data']['file_path'])) {
+        unlink($_POST['data']['file_path']);
+        $return = true;
+    } else {
+        $return = false;
+    }
+    
+    wp_send_json_success( $return );
+
+}
+
+add_action( 'wp_ajax_delete_htmlfile', 'ja_ajax_delete_htmlfile' );
+add_action( 'wp_ajax_nopriv_delete_htmlfile', 'ja_ajax_delete_htmlfile' );

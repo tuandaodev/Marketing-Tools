@@ -89,6 +89,31 @@ function load_assets_redirection() {
 //    wp_enqueue_script('prefix_redirection');
 }
 
+function load_assets_html_generator() {
+    
+    load_assets_common();
+    
+    wp_enqueue_script(
+		'global',
+		WC_PLUGIN_URL . 'assets/html_generator.js',
+		array( 'jquery' ),
+		'1.0.0',
+		true
+	);
+    
+    wp_localize_script(
+		'global',
+		'global',
+		array(
+			'ajax' => admin_url( 'admin-ajax.php' ),
+		)
+    );
+    
+    
+//    wp_register_script('prefix_htmlgenerator', WC_PLUGIN_URL . 'assets/html_generator.js');
+//    wp_enqueue_script('prefix_htmlgenerator');
+}
+
 function load_assets_common() {
         // JS
        
