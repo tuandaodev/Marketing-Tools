@@ -499,5 +499,90 @@ class DbModel {
         return $return;
         
     }
+    
+    public function getAllAffiliateAccount() {
+        
+        $query = "SELECT * FROM wp_td_affiliate";
+        
+        $result = mysqli_query($this->link, $query);
+
+        if ($result) {
+            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
+        } else {
+            $return = [];
+        }
+        
+        return $return;
+        
+    }
+    
+    public function getAffiliateAccountByID($id) {
+        
+        $query = "SELECT * FROM wp_td_affiliate WHERE aff_id = " . $id;
+        
+        $result = mysqli_query($this->link, $query);
+
+        if ($result) {
+            $return = mysqli_fetch_assoc($result);
+        } else {
+            $return = false;
+        }
+        
+        return $return;
+        
+    }
+    
+    public function getAffiliateAccountByCode($code) {
+        
+        $query = "SELECT * FROM wp_td_affiliate WHERE aff_code = " . $code;
+        
+        $result = mysqli_query($this->link, $query);
+
+        if ($result) {
+            $return = mysqli_fetch_assoc($result);
+        } else {
+            $return = false;
+        }
+        
+        return $return;
+        
+    }
+    
+    public function addNewAffiliateAccount($aff_name, $aff_code, $default = 0) {
+        
+        $query = '  INSERT INTO wp_td_affiliate(aff_name, aff_code)
+                        VALUES (
+                        "' . $aff_name . '",
+                        "' . $aff_code . '")';
+        
+        $result = mysqli_query($this->link, $query);
+
+        return $return;
+        
+    }
+    
+    public function UpdateAffiliateAccount($aff_id, $aff_name, $aff_code, $default = 0) {
+        
+        $query = '  UPDATE wp_td_affiliate
+                    SET 
+                        aff_name = "' . $aff_name . '",
+                        aff_code = "' . $aff_code . '"
+                        WHERE aff_id = ' . $aff_id;
+        
+        $result = mysqli_query($this->link, $query);
+
+        return $return;
+        
+    }
+    
+    public function deleteAffiliateAccount($aff_id) {
+        
+        $query = '  DELETE FROM wp_td_affiliate WHERE aff_id = '. $aff_id;
+        
+        $return = mysqli_query($this->link, $query);
+
+        return $return;
+        
+    }
 }
 

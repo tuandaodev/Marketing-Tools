@@ -181,3 +181,44 @@ function ja_ajax_delete_htmlfile() {
 
 add_action( 'wp_ajax_delete_htmlfile', 'ja_ajax_delete_htmlfile' );
 add_action( 'wp_ajax_nopriv_delete_htmlfile', 'ja_ajax_delete_htmlfile' );
+
+function ja_ajax_update_affaccount() {
+    
+    if (!isset($_POST['data'])) {
+        return false;
+    }
+    
+    foreach ($_POST['data'] as $data) {
+        $input[$data['name']] = $data['value'];
+    }
+    
+    $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    
+    $return['status'] = $dbModel->UpdateAffiliateAccount($input['affid'], $input['affiliate_name'], $input['affiliate_code']);
+
+    $return['aff_id'] = $input['affid'];
+    $return['aff_name'] = $input['affiliate_name'];
+    $return['aff_code'] = $input['affiliate_code'];
+    
+    wp_send_json_success( $return );
+}
+
+add_action( 'wp_ajax_update_affaccount', 'ja_ajax_update_affaccount' );
+add_action( 'wp_ajax_nopriv_update_affaccount', 'ja_ajax_update_affaccount' );
+
+function ja_ajax_delete_affaccount() {
+    
+    if (!isset($_POST['aff_id'])) {
+        return false;
+    }
+    
+    $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    
+    $return['status'] = $dbModel->deleteAffiliateAccount($_POST['aff_id']);
+
+    wp_send_json_success( $return );
+
+}
+
+add_action( 'wp_ajax_delete_affaccount', 'ja_ajax_delete_affaccount' );
+add_action( 'wp_ajax_nopriv_delete_affaccount', 'ja_ajax_delete_affaccount' );

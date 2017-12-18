@@ -37,27 +37,18 @@ jQuery(document).ready(function($) {
             }).get();
             
        var modalBody = $('<div id="modalContent"></div>');
-       var modalForm = $('<form role="form" id="edit-html-file" name="edit-html-file" action="admin-ajax.php" method="post"></form>');
+       var modalForm = $('<form role="form" id="edit-aff-account" name="edit-aff-account" action="admin-ajax.php" method="post"></form>');
        $.each(columnHeadings, function(i, columnHeader) {
            var formGroup;
            var columnID = columnHeader.replace(/ /g, '_').toLowerCase();
-           if (columnHeader == "No" || columnHeader == "File Path") {
+           if (columnHeader == "AffID") {
                formGroup = $('<div class="form-group hidden"></div>');
            } else {
                formGroup = $('<div class="form-group"></div>');
            }
             formGroup.append('<label for="'+columnHeader+'">'+columnHeader+'</label>');
             
-            var disableInput = "";
-            if (columnHeader == "File URL") {
-               disableInput = "disabled";
-            } 
-            
-            if (columnHeader == "File Name") {
-                formGroup.append('<input class="form-control hidden" name="'+columnID+'_old" id="'+columnID+'_old" value="'+columnValues[i]+'" '+ disableInput +'/>'); 
-            }
-            
-           formGroup.append('<input class="form-control" name="'+columnID+'" id="'+columnID+'" value="'+columnValues[i]+'" '+ disableInput +'/>'); 
+           formGroup.append('<input class="form-control" name="'+columnID+'" id="'+columnID+'" value="'+columnValues[i]+'"/>'); 
             
             modalForm.append(formGroup);
        });
@@ -66,22 +57,17 @@ jQuery(document).ready(function($) {
      });
      
      $('.modal-footer .btn-primary').click(function() {
-        var data = $('#edit-html-file').serializeArray();
+        var data = $('#edit-aff-account').serializeArray();
         $.post(
             global.ajax, 
             {   
                 data: data,
-                action: 'update_htmlfile' 
+                action: 'update_affaccount' 
             }, 
-            function(data) {
+        function(data) {
                 $('#close-update-modal').click();
-                $("#file_name_" + data.data.no).html(data.data.file_name);
-                $("#file_path_" + data.data.no).html(data.data.file_path);
-                $("#file_url_" + data.data.no).html(data.data.file_url);
-                $("#redirect_url_" + data.data.no).html(data.data.redirect_url);
-                
-                console.log("Updated HTML: " + data.data.file_name);
-                
+                $("#aff_name_" + data.data.aff_id).html(data.data.aff_name);
+                $("#aff_code_" + data.data.aff_id).html(data.data.aff_code);
         });
             
      });
@@ -91,20 +77,16 @@ jQuery(document).ready(function($) {
         var item = $(this);
         var row = item.parent().parent();
         item.prop('disabled', true);
-        var row_id = row.attr('row_id');
-        
-        console.log(row_id);
-        
-        console.log($("#file_path_" + row_id).html());
+        var aff_id = row.attr('aff_id');
         
          $.post(
             global.ajax, 
             {   
-                data: {"row_id": row_id, "file_path": $("#file_path_" + row_id).html()},
-                action: 'delete_htmlfile' 
+                "aff_id": aff_id,
+                action: 'delete_affaccount' 
             }, 
             function(data) {
-                console.log("Deleted HTML: " + row_id);
+                console.log("Deleted Aff Account: " + aff_id);
                 row.remove();
             });
     });

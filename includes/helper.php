@@ -114,6 +114,28 @@ function load_assets_html_generator() {
 //    wp_enqueue_script('prefix_htmlgenerator');
 }
 
+function load_assets_tool_options() {
+    
+    load_assets_common();
+    
+    wp_enqueue_script(
+		'global',
+		WC_PLUGIN_URL . 'assets/tool-options.js',
+		array( 'jquery' ),
+		'1.0.0',
+		true
+	);
+    
+    wp_localize_script(
+		'global',
+		'global',
+		array(
+			'ajax' => admin_url( 'admin-ajax.php' ),
+		)
+    );
+    
+}
+
 function load_assets_common() {
         // JS
        

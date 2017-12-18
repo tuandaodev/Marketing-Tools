@@ -6,6 +6,18 @@
  * and open the template in the editor.
  */
 
+if (!defined('DB_REDIRECTION')) {
+    define('DB_REDIRECTION', 'wp_td_redirection');
+}
+
+if (!defined('DB_VISITOR_IP')) {
+    define('DB_VISITOR_IP', 'wp_td_visitor_ip');
+}
+
+if (!defined('DB_AFFILIATE_ACCOUNT')) {
+    define('DB_AFFILIATE_ACCOUNT', 'wp_td_affiliate');
+}
+
 function marketing_tools_admin_menu() {
     //Maketing Tools
     add_menu_page('Marketing Tools', 'Marketing Tools', 'manage_options', 'marketing-tools', 'function_redirection_page', 'dashicons-admin-multisite', 4);
@@ -13,6 +25,7 @@ function marketing_tools_admin_menu() {
     add_submenu_page('marketing-tools', __('Visitor IP Tracking'), __('Visitor IP Tracking'), 'manage_options', 'visitor-ip-tracking', 'function_visitor_ip_tracking_page');
     add_submenu_page('marketing-tools', __('Get IP Info'), __('Get IP Info'), 'manage_options', 'get-ip-information', 'function_get_ip_information_page');
     add_submenu_page('marketing-tools', __('HTML Generator'), __('HTML Generator'), 'manage_options', 'html-generator', 'function_html_generator_page');
+    add_submenu_page('marketing-tools', __('Marketing Options'), __('Marketing Options'), 'manage_options', 'marketing-tool-options', 'function_marketing_options_page');
     add_submenu_page('marketing-tools', __('Testing'), __('Testing'), 'manage_options', 'marketing-testing', 'function_testing_page');
 }
 
@@ -66,6 +79,29 @@ function tracking_create_db() {
             )' . $charset_collate . ';
                 
             CREATE INDEX idx_url ON ' . $db_name . ' (vi_url);';    // RE_ID: redirection ID to link to post
+
+            // `vi_updated` datetime NOT NULL,
+//            `vi_count` mediumint NOT NULL,
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+    }
+}
+
+function affiliate_create_db() {
+    global $wpdb;
+    $db_name = DB_AFFILIATE_ACCOUNT;
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    // create the ECPT metabox database table
+    if($wpdb->get_var("show tables like '$db_name'") != $db_name) 
+    {
+            $sql = 'CREATE TABLE ' . $db_name . ' (
+            `aff_id` mediumint NOT NULL AUTO_INCREMENT,
+            `aff_name` text NOT NULL,
+            `aff_code` text NOT NULL,
+            `aff_default` tinyint NOT NULL,
+            UNIQUE KEY aff_id (aff_id)
+            )' . $charset_collate . ';';
 
             // `vi_updated` datetime NOT NULL,
 //            `vi_count` mediumint NOT NULL,
