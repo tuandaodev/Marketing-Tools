@@ -122,8 +122,9 @@ function function_html_generator_page() {
         
         echo '<div class="alert alert-success">
                         <strong>' . $string_add . ' the redirection successful. File name: <font color="red">' . $file_name . '</font><br/>
-                            File URL: <font color="blue">' . $_POST['redirect_url'] . '</font> <br/>
-                            Redirect URL: <font color="blue">' . home_url() . '/' . $file_name . '</font> <br/>
+                            File URL: <font color="blue">' . home_url() . '/' . $file_name . '</font> <br/>
+                            Redirect URL: <font color="blue">' . $_POST['redirect_url'] . '</font> <br/>
+                            
                             </strong>
             </div>';
         
