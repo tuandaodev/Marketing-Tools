@@ -40,9 +40,8 @@ function redirection_create_db() {
             $sql = 'CREATE TABLE ' . $db_name . ' (
             `re_id` mediumint NOT NULL AUTO_INCREMENT,
             `re_source` mediumint NOT NULL,
-            `re_source_multi` text NULL,
+            `re_aff` mediumint NOT NULL,
             `re_destination` text NOT NULL,
-            `re_des_proxy` text NULL,
             `re_type` tinytext NOT NULL,
             `re_parent` mediumint NOT NULL,
             `re_active` tinyint NOT NULL,

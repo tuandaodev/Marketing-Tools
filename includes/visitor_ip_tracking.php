@@ -74,7 +74,7 @@ function function_visitor_ip_tracking_page() {
                                 </div>
                                 
                                 <div class="form-group">
-                                            <label>Quick Time Select</label>
+                                        <label>Quick Time Select</label>
                                             <select class="form-control" id="query_timetype" name="query_timetype">
                                                 <option value="time_all">All Time</option>
                                                 <option value="time_today">Today</option>

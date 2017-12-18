@@ -18,6 +18,8 @@ function function_redirection_page() {
     
     $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
     
+    $aff_accounts = $dbModel->getAllAffiliateAccount();
+    
     echo '<div class="wrap">';
     echo '<div class="row">
                 <div class="col-lg-6">
@@ -30,7 +32,7 @@ function function_redirection_page() {
                         
     if (isset($_POST['process_addNewCouponRedirection'])) {
         
-        $add = $dbModel->add_redirection($_POST['post_id'], $_POST['post_redirect_url'], $_POST['post_proxy_redirect_url'], 'coupon');
+        $add = $dbModel->add_redirection($_POST['post_id'], $_POST['aff_account'], $_POST['post_redirect_url'], 'coupon');
         
         if ($add) {
             $string_add = '<font color="red">Added</font>';
@@ -41,7 +43,7 @@ function function_redirection_page() {
         echo '<div class="alert alert-success">
                         <strong>' . $string_add . ' the redirection successful. Coupon ID: <font color="red">' . $_POST['post_id'] . '</font><br/>
                             URL: <font color="blue">' . $_POST['post_redirect_url'] . '</font> <br/>
-                            Proxy URL: <font color="blue">' . $_POST['post_proxy_redirect_url'] . '</font> <br/>
+                            Aff ID: <font color="blue">' . $_POST['aff_account'] . '</font> <br/>
                             </strong>
             </div>';
         
@@ -59,15 +61,26 @@ function function_redirection_page() {
                                 <div class="form-group">
                                     <label>Coupon ID</label>
                                     <input type="number" class="form-control" id="post_id" name="post_id" value="400" required>
-                                </div>
-                                <div class="form-group">
+                                </div>';
+    
+    echo '<div class="form-group">
+                                        <label>Affiliate Account</label>
+                                            <select class="form-control" id="aff_account" name="aff_account">';
+
+                            foreach ($aff_accounts as $aff) {
+                                                    echo '<option value="' . $aff['aff_id'] . '">' . $aff['aff_name'] . ': ' . $aff['aff_code'] . '</option>';
+                                                }
+                                            echo '</select>
+                                        </div>';
+
+            echo '<div class="form-group">
                                     <label>Redirect URL</label>
                                     <input type="text" class="form-control" id="post_redirect_url" name="post_redirect_url" value="https://google.com.vn" required>
                                 </div>
-                                <div class="form-group">
+                                <!-- <div class="form-group">
                                     <label>Proxy Redirect URL</label>
                                     <input type="text" class="form-control" id="post_proxy_redirect_url" name="post_proxy_redirect_url" value="' . home_url() . '/blocked.html" required>
-                                </div>
+                                </div> -->
                                 
                                 <input type="hidden" id="process_addNewCouponRedirection" name="process_addNewCouponRedirection">
 
@@ -88,7 +101,7 @@ function function_redirection_page() {
     
     if (isset($_POST['process_addNewStoreRedirection'])) {
         
-        $add = $dbModel->add_redirection($_POST['store_id'], $_POST['store_redirect_url'], $_POST['store_proxy_redirect_url'], 'store');
+        $add = $dbModel->add_redirection($_POST['store_id'], $_POST['aff_account'], $_POST['store_redirect_url'], 'store');
         
         if ($add) {
             $string_add = '<font color="red">Added</font>';
@@ -99,7 +112,7 @@ function function_redirection_page() {
         echo '<div class="alert alert-success">
                         <strong>' . $string_add . ' the redirection successful. Coupon ID: <font color="red">' . $_POST['store_id'] . '</font><br/>
                             URL: <font color="blue">' . $_POST['store_redirect_url'] . '</font> <br/>
-                            Proxy URL: <font color="blue">' . $_POST['store_proxy_redirect_url'] . '</font>
+                            Aff ID: <font color="blue">' . $_POST['aff_account'] . '</font>
                             </strong>
             </div>';
         
@@ -117,15 +130,27 @@ function function_redirection_page() {
                                 <div class="form-group">
                                     <label>Store ID</label>
                                     <input type="number" class="form-control" id="store_id" name="store_id" value="34" required>
-                                </div>
-                                <div class="form-group">
+                                </div>';
+        
+            echo '<div class="form-group">
+                                        <label>Affiliate Account</label>
+                                            <select class="form-control" id="aff_account" name="aff_account">';
+
+                            foreach ($aff_accounts as $aff) {
+                                                    echo '<option value="' . $aff['aff_id'] . '">' . $aff['aff_name'] . ': ' . $aff['aff_code'] . '</option>';
+                                                }
+                                            echo '</select>
+                                        </div>';
+        
+        
+        echo '                       <div class="form-group">
                                     <label>Redirect URL</label>
                                     <input type="text" class="form-control" id="store_redirect_url" name="store_redirect_url" value="https://google.com.vn" required>
                                 </div>
-                                <div class="form-group">
+                                <!-- <div class="form-group">
                                     <label>Proxy Redirect URL</label>
                                     <input type="text" class="form-control" id="store_proxy_redirect_url" name="store_proxy_redirect_url" value="' . home_url() . '/blocked.html" required>
-                                </div>
+                                </div> -->
                                 
                                 <input type="hidden" id="process_addNewStoreRedirection" name="process_addNewStoreRedirection">
 
@@ -156,8 +181,9 @@ function function_redirection_page() {
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">PID</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Type</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Title</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Affiliate</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Redirect URL</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Proxy URL</th>
+                                   <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 150px;">Proxy URL</th> -->
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Status</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Non/Re/All</th>
                                    <th aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Options</th>
@@ -198,9 +224,12 @@ function function_redirection_page() {
             } else {
                 echo '<td class="center">' . $redirect['name'] . '</td>';
             }
-                            
+            
+            echo '<td id="aff_' . $redirect['re_id'] . '">' . $redirect['aff'] . '</td>';
+            
             echo '<td id="redirect_url_' . $redirect['re_id'] . '">' . urldecode($redirect['re_destination']) . '</td>';
-            echo '<td id="proxy_url_' . $redirect['re_id'] . '">' . urldecode($redirect['re_des_proxy']) . '</td>';
+            
+//            echo '<td id="proxy_url_' . $redirect['re_id'] . '">' . urldecode($redirect['re_des_proxy']) . '</td>';
                        
              if ($redirect['re_active']) {
                 echo '<td><input id="re_active_' . $redirect['re_id'] . '" class="redirection-active" type="checkbox" data-toggle="toggle" data-size="mini" data-on="Enabled" data-off="Disabled" checked>';
