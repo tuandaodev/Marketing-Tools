@@ -111,16 +111,16 @@ jQuery(document).ready(function($) {
     
     var table = $('#dataTables-example').DataTable();
     
-    table.columns( [ 6, 7 ] ).visible( false, false );
+    table.columns( [ 4,5 ] ).visible( false, false );
     
     $('li a').click(function(e) {
         
 //         var table = $('#dataTables-example').DataTable();
         
         if ($(this).text() == 'Hide More Info') {
-            table.columns( [ 6, 7 ] ).visible( false, false );
+            table.columns( [ 4,5 ] ).visible( false, false );
         } else {
-            table.columns( [ 6, 7 ] ).visible( true, true );
+            table.columns( [ 4,5 ] ).visible( true, true );
         }
         
       });

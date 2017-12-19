@@ -183,11 +183,11 @@ function function_visitor_ip_tracking_page() {
                                 <tr role="row">
                                    <th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;" aria-sort="descending" >No</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 10px;">IP</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">ReID</th>
+                                   <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">ReID</th> -->
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 100px;">URL</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Store</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Source</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Agent</th>
+                                   <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Agent</th> -->
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Proxy Info</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px; text-align: center;">Redirected</th>
                                 </tr>
@@ -242,14 +242,20 @@ function function_visitor_ip_tracking_page() {
                 $url = get_term_link((int)$ip_log['re_source']);
                 $store_info = $dbModel->getStoreInfoByStoreID((int)$ip_log['re_source']);
                 $title = isset($store_info['name']) ? $store_info['name'] : '';
-                $parent_title = $title;
-            } else {
+//                $parent_title = $title;
+                $parent_title = 'Store';
+            } elseif (($ip_log['re_type'] == 'coupon')) {
                 $url = get_permalink($ip_log['re_source']);
                 $title = get_the_title($ip_log['re_source']);
                 
-                $store_info = $dbModel->getStoreInfoByStoreID((int)$ip_log['re_parent']);
-                $parent_title = isset($store_info['name']) ? $store_info['name'] : '';
-//                $parent_title = $title;
+//                $store_info = $dbModel->getStoreInfoByStoreID((int)$ip_log['re_parent']);
+//                $parent_title = isset($store_info['name']) ? $store_info['name'] : '';
+                $parent_title = 'Coupon';
+            } else {
+                $url = $ip_log['vi_notes'];
+                $title = $ip_log['vi_notes'];
+                
+                $parent_title = "Static Page";
             }
 
             if (isset($url->errors)) {
@@ -265,8 +271,8 @@ function function_visitor_ip_tracking_page() {
             //<td class="sorting_1" >' . $ip_log['vi_id'] . '</td>
             echo ' <tr class="' . $row_color . '" role="row">
                             <td class="sorting_1" >' . $count . '</td>
-                           <td class="center">' . $ip_log['vi_ip'] . '</td>
-                               <td class="center">' . $ip_log['vi_url'] . '</td>';
+                           <td class="center">' . $ip_log['vi_ip'] . '</td>';
+//                               <td class="center">' . $ip_log['vi_url'] . '</td>';
                 if (!empty($url)) {
                     echo '<td class="center"><a href="' . $url . '" target="_blank" >' . $title . ' </a></td>';
                 } else {
@@ -275,7 +281,7 @@ function function_visitor_ip_tracking_page() {
                 
                 echo '<td class="center">' . $parent_title . '</td>';
                 echo '<td class="center">' . $ip_log['vi_date'] . '</td>';
-                echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
+//                echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
                 echo '<td class="center">' . $ip_log['vi_proxy'] . '</td>';
                 
                 if ($ip_log['vi_redirected'] == 2) {

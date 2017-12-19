@@ -48,44 +48,61 @@ function marketing_tools_plugin_init() {
 
 function function_testing_page() {
     
-    $ip = '85.17.24.66';
-    $test = getIpSafe($ip);
+    $test = read_redirection_html('C:/xampp/htdocs/limitcoupon//test.php');
     
-    echo "<pre>";
-    print_r($test);
-    echo "<pre>";
-    exit;
+//    if ($test == false) {
+//        echo "PASS";
+//    } else {
+//        echo "FAIL";
+//    }
+    
 }
 
-function write_redirection_2html($file_name, $redirect_url) {
+function write_redirection_2html($file_name, $redirect_url, $aff_id) {
     
     $file_path = get_home_path() . '/' . $file_name;
     
     $file = fopen($file_path, "w");
     
-//    $body = '<meta http-equiv="refresh" content="0; url=' . urlencode($redirect_url) . '">';
-    $body = '<meta http-equiv="refresh" content="0; url=' . ($redirect_url) . '">';
+    $body = '<?php $url=/*StartURL*/"' . $redirect_url . '"/*EndURL*/; $aff_id=/*StartAff*/' . $aff_id . '/*EndAff*/;';
+    $body .= "include 'wp-content/plugins/Marketing-Tools/autoload_html.php';";
+    $body .= "include 'wp-config.php';";
+    $body .= '$re = new TD_Redirection_HTML();';
+    $body .= '$re->redirection($aff_id, $url);';
+    $body .= '?>';
     
     fwrite($file, $body);
     fclose($file);
+    
 }
 
 function read_redirection_html($file_name) {
     
-    $meta_tag = file_get_contents($file_name);
+    $contents = file_get_contents($file_name);
     
-    $pos = strpos($meta_tag, 'url=');
-    $url = substr($meta_tag, $pos + 4);
-    $url = substr($url, 0, -2);
+    $data['url_start'] = strpos($contents, '/*StartURL*/') + 13; 
+    $data['url_end'] = strpos($contents, '/*EndURL*/') - 2;
     
-    return urldecode($url);
+    $return['redirect_url'] = substr($contents, $data['url_start'], $data['url_end'] - $data['url_start'] + 1);
+
+    $data['aff_start'] = strpos($contents, '/*StartAff*/') + 12; 
+    $data['aff_end'] = strpos($contents, '/*EndAff*/');
     
+    $aff = substr($contents, $data['aff_start'], $data['aff_end'] - $data['aff_start']);
+    
+    $return['aff_id'] = $aff;
+    
+    return $return;
 }
 
 
 function function_html_generator_page() {
     
     load_assets_html_generator();
+    
+    $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    
+    $aff_accounts = $dbModel->getAllAffiliateAccount();
     
     echo '<div class="wrap">';
     echo '<div class="row">
@@ -99,38 +116,72 @@ function function_html_generator_page() {
                         
     if (isset($_POST['process_addNewHTML'])) {
         
-        if (strpos($_POST['file_name'], '.htm') !== false) {
+        if (strpos($_POST['file_name'], '.php') !== false) {
             $file_name = $_POST['file_name'];
         } else {
-            $file_name = $_POST['file_name'] . '.html';
+            $file_name = $_POST['file_name'] . '.php';
         }
         
         $file_name = str_replace(' ', '-', $file_name);
         
-        write_redirection_2html($file_name, $_POST['redirect_url']);
-        
-        if ($add) {
-            $string_add = '<font color="red">Added</font>';
+        if (check_file_name($file_name) == false) {
+            
+                echo '<div class="alert alert-danger">
+                            <strong>The File Name can\'t be used. Please choose another name.</strong>
+                </div>';
+            
         } else {
-            $string_add = '<font color="red">Updated</font>';
-        }
-        
-        echo '<div class="alert alert-success">
-                        <strong>' . $string_add . ' the redirection successful. File name: <font color="red">' . $file_name . '</font><br/>
-                            File URL: <font color="blue">' . home_url() . '/' . $file_name . '</font> <br/>
-                            Redirect URL: <font color="blue">' . $_POST['redirect_url'] . '</font> <br/>
-                            
+            
+            foreach ($aff_accounts as $aff) {
+                if ($aff['aff_id'] == $_POST['aff_account']) {
+                    $aff_account = $aff;
+                    break;
+                }
+            }
+            
+            write_redirection_2html($file_name, $_POST['redirect_url'], $_POST['aff_account']);
+
+//            if ($add) {
+                $string_add = '<font color="red">Added</font>';
+//            } else {
+//                $string_add = '<font color="red">Updated</font>';
+//            }
+
+            echo '<div class="alert alert-success">
+                            <strong>' . $string_add . ' the redirection successful. File name: <font color="red">' . $file_name . '</font><br/>
+                                File URL: <font color="blue">' . home_url() . '/' . $file_name . '</font> <br/>
+                                Redirect URL: <font color="blue">' . $_POST['redirect_url'] . '</font> <br/>
+                                Aff ID: '. $aff_account['aff_id'] .' | Name: '. $aff_account['aff_name'] .' | Code: <font color="blue">' . $aff_account['aff_code'] . '</font> <br/>
                             </strong>
-            </div>';
+                </div>';
+        }
         
     }
     
-    echo '<form role="form" method="post">
+    echo '          <form role="form" method="post">
+                                <!-- <div class="form-group" id="generate_mode_group">
+                                        <label>Generate Mode</label>
+                                            <select class="form-control" id="generate_mode" name="generate_mode">
+                                                <option value="mode_custom">Custom Link</option>
+                                                <option value="mode_auto">Auto-Generated Affiliate Link</option>
+                                            </select>
+                                        </div> -->
                                 <div class="form-group">
                                     <label>File Name</label>
                                     <input type="text" class="form-control" id="file_name" name="file_name" placeholder="Automatically replace spaces with \'-\' characters" required>
-                                </div>
-                                <div class="form-group">
+                                </div>';
+    
+    echo '<div class="form-group">
+                                        <label>Affiliate Account</label>
+                                            <select class="form-control" id="aff_account" name="aff_account">';
+
+                            foreach ($aff_accounts as $aff) {
+                                                    echo '<option value="' . $aff['aff_id'] . '">' . $aff['aff_view'] . '</option>';
+                                                }
+                                            echo '</select>
+                                        </div>';
+                                            
+                            echo '<div class="form-group">
                                     <label>Redirect URL</label>
                                     <input type="text" class="form-control" id="redirect_url" name="redirect_url" value="https://google.com.vn" required>
                                 </div>
@@ -164,7 +215,9 @@ function function_html_generator_page() {
                                 <tr role="row">
                                    <th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;" aria-sort="descending" >No</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">File Name</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; display: none">File Path</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; display: none;">File Path</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; display: none;">Aff ID</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Affiliate</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">File URL</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Redirect URL</th>
                                    <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Last Modified</th> -->
@@ -173,16 +226,27 @@ function function_html_generator_page() {
                              </thead>
                                 <tbody>';
     
+    
         
+        
+    
     $count = 0;
-    foreach(glob(get_home_path().'/*.{html,htm}', GLOB_BRACE) as $file) {
+    foreach(glob(get_home_path().'/*.php', GLOB_BRACE) as $file) {
 
-        if (strpos($file, 'blocked') === false && strpos($file, 'readme') === false ) {
+        if ( check_file_name($file, false) != false ) {
 //            print_r($file);
             
             
             $file_path = $file;
-            $redirect_url = read_redirection_html($file);
+            $file_data = read_redirection_html($file);
+            
+            foreach ($aff_accounts as $aff) {
+                if ($aff['aff_id'] == $file_data['aff_id']) {
+                    $aff_account = $aff;
+                    break;
+                }
+            }
+            
             
             $count++;
             
@@ -191,8 +255,10 @@ function function_html_generator_page() {
             
             echo '<td id="file_name_' . $count . '">' . basename($file_path) . '</td>';
             echo '<td id="file_path_' . $count . '" style="display: none;">' . $file_path . '</td>';
+            echo '<td id="aff_id_' . $count . '" style="display: none;">' . $aff_account['aff_id'] . '</td>';
+            echo '<td id="aff_name_' . $count . '" >' . $aff_account['aff_view'] . '</td>';
             echo '<td id="file_url_' . $count . '">' . home_url() . '/' . basename($file_path) . '</td>';
-            echo '<td id="redirect_url_' . $count . '">' . $redirect_url . '</td>';
+            echo '<td id="redirect_url_' . $count . '">' . urldecode($file_data['redirect_url']) . '</td>';
             
             echo '<td>  <button type="button" class="btn btn-success btn-xs button-edit" data-toggle="modal" data-target="#myEditModal" title="Edit"><i class="glyphicon glyphicon-edit"></i></button>';
             echo '  <button type="button" class="btn btn-danger btn-xs button-delete" title="Delete"><i class="fa fa-times"></i></button>';
@@ -383,6 +449,41 @@ function function_marketing_options_page() {
     </div>
 </div>';
     
+}
+
+function check_file_name($file_name, $equal = true) {
+    
+    $nonfiles = array(  'index.php', 
+                        'wp-activate.php', 
+                        'wp-blog-header.php', 
+                        'wp-comments-post.php', 
+                        'wp-config-sample.php', 
+                        'wp-config.php', 
+                        'wp-cron.php', 
+                        'wp-links-opml.php', 
+                        'wp-load.php', 
+                        'wp-login.php', 
+                        'wp-mail.php', 
+                        'wp-settings.php', 
+                        'wp-signup.php', 
+                        'wp-trackback.php', 
+                        'xmlrpc.php'    );
+    
+    if ($equal == true) {
+        foreach ($nonfiles as $non_name) {
+            if ($file_name == $non_name) {
+                return false;
+            }
+        }
+        return true;
+    } else {
+        foreach ($nonfiles as $non_name) {
+            if (strpos($file_name,$non_name) !== false) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
 
 ?>
