@@ -128,7 +128,9 @@ function banip_create_db() {
             `ib_date` datetime NOT NULL,
             `ib_status` tinyint NOT NULL,
             UNIQUE KEY ib_id (ib_id)
-            )' . $charset_collate . ';';
+            )' . $charset_collate . ';
+                
+            CREATE INDEX idx_ip ON ' . $db_name . ' (ib_ip);';
 
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             dbDelta($sql);

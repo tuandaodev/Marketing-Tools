@@ -296,13 +296,15 @@ class DbModel {
                             count(*) as count
                         FROM wp_td_visitor_ip
                         WHERE vi_url = 0
-                        GROUP BY vi_ip, vi_notes';
+                        GROUP BY vi_ip, vi_notes
+                        ';
         } else {
             $query = '  SELECT *
-                        FROM (SELECT vi_ip, vi_url, vi_notes, count(*) as count
+                        FROM (SELECT *, count(*) as count
                         FROM wp_td_visitor_ip
                         WHERE vi_url <> 0
-                        GROUP BY vi_ip, vi_url) as Temp
+                        GROUP BY vi_ip, vi_url
+                        ) as Temp
                         INNER JOIN wp_td_redirection ON Temp.vi_url = re_id';
         }
         
@@ -536,6 +538,19 @@ class DbModel {
     public function deleteAffiliateAccount($aff_id) {
         
         $query = '  DELETE FROM wp_td_affiliate WHERE aff_id = '. $aff_id;
+        
+        $result = mysqli_query($this->link, $query);
+
+        return $result;
+        
+    }
+    
+    public function insertBlockIP($ip) {
+        
+        $query = '  INSERT INTO wp_td_ipbanned(aff_name, aff_code)
+                        VALUES (
+                        "' . $ip . '",
+                        Now())';
         
         $result = mysqli_query($this->link, $query);
 

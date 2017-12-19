@@ -111,7 +111,9 @@ jQuery(document).ready(function($) {
     
     var table = $('#dataTables-example').DataTable();
     
-    table.columns( [ 4,5 ] ).visible( false, false );
+    if ($('#current_query_mode').val() != 'query_ip') {
+        table.columns( [ 4,5 ] ).visible( false, false );
+    }
     
     $('li a').click(function(e) {
         
@@ -186,7 +188,142 @@ jQuery(document).ready(function($) {
             }
     });
     
+    $('#get_ip_list_group').hide();
+    $('#get_ip_list_collapse').click(function() {
+        if ($('#get_ip_list_group').is(':hidden')) {
+            $('#get_ip_list_group').show();
+        } else {
+            $('#get_ip_list_group').hide();
+        }
+    });
+    
+    $('#get_ip_banned_group').hide();
+    $('#get_ip_banned_collapse').click(function() {
+        if ($('#get_ip_banned_group').is(':hidden')) {
+            $('#get_ip_banned_group').show();
+        } else {
+            $('#get_ip_banned_group').hide();
+        }
+    });
+    
+    $('.button-delete').click(function() {
+        
+        var item = $(this);
+        var row = item.parent().parent();
+        item.prop('disabled', true);
+        var re_id = row.attr('re_id');
+         $.post(
+            global.ajax, 
+            {   
+                id: re_id,
+                action: 'delete_redirection' 
+            }, 
+            function(data) {
+                console.log("Deleted redirection: " + re_id);
+                row.remove();
+            });
+    });
     
     
+    $(".btn[data-target='#myEditModal']").click(function() {
+            var columnHeadings = $("thead th").map(function() {
+                      return $(this).text();
+                   }).get();
+            columnHeadings.pop();
+            var columnValues = $(this).parent().siblings().map(function() {
+                      return $(this).text();
+            }).get();
+            var columnChecks = $(this).parent().siblings().map(function() {
+                      return $(this).children().children().is(":checked");
+            }).get();
+            
+       var modalBody = $('<div id="modalContent"></div>');
+       var modalForm = $('<form role="form" id="edit-redirection-modal" name="edit-redirection-modal" action="admin-ajax.php" method="post"></form>');
+       $.each(columnHeadings, function(i, columnHeader) {
+           var formGroup;
+           var columnID = columnHeader.replace(/ /g, '_').toLowerCase();
+           if (columnHeader == "ReID" || columnHeader == "PID" || columnHeader == "AffID") {
+               formGroup = $('<div class="form-group hidden"></div>');
+           } else {
+               formGroup = $('<div class="form-group"></div>');
+           }
+            formGroup.append('<label for="'+columnHeader+'">'+columnHeader+'</label>');
+            
+            var disableInput = "";
+            if (columnHeader == "Type" || columnHeader == "Title" || columnHeader == "Non/Re/All") {
+               disableInput = "disabled";
+            } 
+            
+            if (columnHeader == "Status") {
+               var string = '<select class="form-control" name="'+columnID+'" id="'+columnID+'" value="'+columnValues[i]+'" '+ disableInput +'>';
+                
+               if (columnChecks[i]) {
+                   string += '<option value="1" selected>Enable</option><option value="0">Disable</option></select>';
+               } else {
+                   string += '<option value="1">Enable</option><option value="0" selected>Disable</option></select>';
+               }
+               
+                formGroup.append(string); 
+                
+            } else if (columnHeader == "Affiliate") {
+                formGroup.append('<select class="form-control" name="update_aff_account" id="update_aff_account"></select>'); 
+            } else {
+                formGroup.append('<input class="form-control" name="'+columnID+'" id="'+columnID+'" value="'+columnValues[i]+'" '+ disableInput +'/>'); 
+
+            }
+            
+            modalForm.append(formGroup);
+       });
+       modalBody.append(modalForm);
+       $('.modal-body').html(modalBody);
+        
+        var $options = $("#post_aff_account > option").clone();
+
+        $('#update_aff_account').append($options);
+        
+        $('#update_aff_account').val($('#affid').val());
+        
+     });
+     
+     $(".btn[data-target='#myEditModal']").click(function() {
+            var columnHeadings = $("thead th").map(function() {
+                      return $(this).text();
+                   }).get();
+            columnHeadings.pop();
+            var columnValues = $(this).parent().siblings().map(function() {
+                      return $(this).text();
+            }).get();
+            var columnChecks = $(this).parent().siblings().map(function() {
+                      return $(this).children().children().is(":checked");
+            }).get();
+            
+       var modalBody = $('<div id="modalContent"></div>');
+       var modalForm = $('<form role="form" id="edit-redirection-modal" name="edit-redirection-modal" action="admin-ajax.php" method="post"></form>');
+       $.each(columnHeadings, function(i, columnHeader) {
+           var formGroup;
+           var columnID = columnHeader.replace(/ /g, '_').toLowerCase();
+           if (columnHeader == "No") {
+               formGroup = $('<div class="form-group hidden"></div>');
+           } else {
+               formGroup = $('<div class="form-group"></div>');
+           }
+            formGroup.append('<label for="'+columnHeader+'">'+columnHeader+'</label>');
+            
+            var disableInput = "";
+            
+                formGroup.append('<input class="form-control" name="'+columnID+'" id="'+columnID+'" value="'+columnValues[i]+'" '+ disableInput +'/>'); 
+
+            modalForm.append(formGroup);
+       });
+       modalBody.append(modalForm);
+       $('.modal-body').html(modalBody);
+        
+        var $options = $("#post_aff_account > option").clone();
+
+        $('#update_aff_account').append($options);
+        
+        $('#update_aff_account').val($('#affid').val());
+        
+     });
 });
 

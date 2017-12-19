@@ -224,3 +224,22 @@ function ja_ajax_delete_affaccount() {
 
 add_action( 'wp_ajax_delete_affaccount', 'ja_ajax_delete_affaccount' );
 add_action( 'wp_ajax_nopriv_delete_affaccount', 'ja_ajax_delete_affaccount' );
+
+
+function ja_ajax_view_ipinfo() {
+    
+    if (!isset($_POST['ip'])) {
+        return false;
+    }
+    
+    $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    
+    $return['status'] = $dbModel->deleteAffiliateAccount($_POST['aff_id']);
+
+    wp_send_json_success( $return );
+
+}
+
+add_action( 'wp_ajax_view_ipinfo', 'ja_ajax_view_ipinfo' );
+add_action( 'wp_ajax_nopriv_view_ipinfo', 'ja_ajax_view_ipinfo' );
+
