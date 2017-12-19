@@ -345,73 +345,75 @@ class DbModel {
                 break;
         }
         
-        switch ($input['query_timetype']) {
-            case 'time_all':
-                break;
-            case 'time_today':
-                if ($iswhere == true) {
-                        $query .= ' WHERE ';
-                        $iswhere = false;
-                        $isand = true;
-                } elseif ($isand == true) {
-                    $query .= ' AND ';
-                }
-                $query .= ' DATE(vi_date) = CURDATE() ';
-                break;
-            case 'time_7day':
-                if ($iswhere == true) {
-                        $query .= ' WHERE ';
-                        $iswhere = false;
-                        $isand = true;
-                } elseif ($isand == true) {
-                    $query .= ' AND ';
-                }
-                $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ';
-                break;
-            case 'time_1month':
-                if ($iswhere == true) {
-                        $query .= ' WHERE ';
-                        $iswhere = false;
-                        $isand = true;
-                } elseif ($isand == true) {
-                    $query .= ' AND ';
-                }
-                $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ';
-                break;
-            case 'time_3month':
-                if ($iswhere == true) {
-                        $query .= ' WHERE ';
-                        $iswhere = false;
-                        $isand = true;
-                } elseif ($isand == true) {
-                    $query .= ' AND ';
-                }
-                $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH) ';
-                break;
-            case 'time_custom':
-                if (isset($input['time_start']) && !empty($input['time_start'])) {
+        if (isset($input['query_timetype'])) {
+            switch ($input['query_timetype']) {
+                case 'time_all':
+                    break;
+                case 'time_today':
                     if ($iswhere == true) {
-                        $query .= ' WHERE ';
-                        $iswhere = false;
-                        $isand = true;
+                            $query .= ' WHERE ';
+                            $iswhere = false;
+                            $isand = true;
                     } elseif ($isand == true) {
                         $query .= ' AND ';
                     }
-                    $query .= ' vi_date >= "' . $input['time_start'] . '"';
-                }
+                    $query .= ' DATE(vi_date) = CURDATE() ';
+                    break;
+                case 'time_7day':
+                    if ($iswhere == true) {
+                            $query .= ' WHERE ';
+                            $iswhere = false;
+                            $isand = true;
+                    } elseif ($isand == true) {
+                        $query .= ' AND ';
+                    }
+                    $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ';
+                    break;
+                case 'time_1month':
+                    if ($iswhere == true) {
+                            $query .= ' WHERE ';
+                            $iswhere = false;
+                            $isand = true;
+                    } elseif ($isand == true) {
+                        $query .= ' AND ';
+                    }
+                    $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ';
+                    break;
+                case 'time_3month':
+                    if ($iswhere == true) {
+                            $query .= ' WHERE ';
+                            $iswhere = false;
+                            $isand = true;
+                    } elseif ($isand == true) {
+                        $query .= ' AND ';
+                    }
+                    $query .= ' vi_date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH) ';
+                    break;
+                case 'time_custom':
+                    if (isset($input['time_start']) && !empty($input['time_start'])) {
+                        if ($iswhere == true) {
+                            $query .= ' WHERE ';
+                            $iswhere = false;
+                            $isand = true;
+                        } elseif ($isand == true) {
+                            $query .= ' AND ';
+                        }
+                        $query .= ' vi_date >= "' . $input['time_start'] . '"';
+                    }
 
-                if (isset($input['time_end']) && !empty($input['time_end'])) {
-                    if ($iswhere == true) {
-                        $query .= ' WHERE ';
-                        $iswhere = false;
-                        $isand = true;
-                    } elseif ($isand == true) {
-                        $query .= ' AND ';
+                    if (isset($input['time_end']) && !empty($input['time_end'])) {
+                        if ($iswhere == true) {
+                            $query .= ' WHERE ';
+                            $iswhere = false;
+                            $isand = true;
+                        } elseif ($isand == true) {
+                            $query .= ' AND ';
+                        }
+                        $query .= ' vi_date <= "' . $input['time_end'] . '"';
                     }
-                    $query .= ' vi_date <= "' . $input['time_end'] . '"';
-                }
-                break;
-            
+                    break;
+
+            }
         }
         
         $query .= ' ORDER BY vi_id DESC';
