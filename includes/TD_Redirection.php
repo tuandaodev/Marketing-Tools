@@ -54,13 +54,6 @@ if (!class_exists('TD_Redirection')) {
                 $ip = getClientIP();
                 $agent = getClientAgent();
                 
-                $ip_safe = getIpSafe($ip);
-                if ($ip_safe != false) {
-                    $log = $ip_safe['countryName'] . ' | ' . $ip_safe['isp'] . ' | Block: ' . $ip_safe['block'];
-                } else {
-                    $log = $agent;
-                }
-                
                 if ($exists['re_active'] == 0 || $check_referer) {
                     $ip_safe = getIpSafe($ip);
                     if (isset($ip_safe['ip'])) {
