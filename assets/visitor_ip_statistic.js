@@ -111,7 +111,8 @@ jQuery(document).ready(function($) {
     
     var table = $('#dataTables-example').DataTable();
     
-    table.columns( [ 4,5 ] ).visible( false, false );
+//    table.columns( [ 4,5 ] ).visible( false, false );
+    
     
     $('li a').click(function(e) {
         
@@ -124,6 +125,24 @@ jQuery(document).ready(function($) {
         }
         
       });
+    
+    $('#get_ip_list_group').hide();
+    $('#get_ip_list_collapse').click(function() {
+        if ($('#get_ip_list_group').is(':hidden')) {
+            $('#get_ip_list_group').show();
+        } else {
+            $('#get_ip_list_group').hide();
+        }
+    });
+    
+    $('#get_ip_banned_group').hide();
+    $('#get_ip_banned_collapse').click(function() {
+        if ($('#get_ip_banned_group').is(':hidden')) {
+            $('#get_ip_banned_group').show();
+        } else {
+            $('#get_ip_banned_group').hide();
+        }
+    });
     
     $('#get_ip_list').click(function () {
        $('#ip-list').val(

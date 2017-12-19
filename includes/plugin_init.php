@@ -18,6 +18,10 @@ if (!defined('DB_AFFILIATE_ACCOUNT')) {
     define('DB_AFFILIATE_ACCOUNT', 'wp_td_affiliate');
 }
 
+if (!defined('DB_IP_BANNED')) {
+    define('DB_IP_BANNED', 'wp_td_ipbanned');
+}
+
 function marketing_tools_admin_menu() {
     //Maketing Tools
     add_menu_page('Marketing Tools', 'Marketing Tools', 'manage_options', 'marketing-tools', 'function_redirection_page', 'dashicons-admin-multisite', 4);
@@ -105,6 +109,27 @@ function affiliate_create_db() {
 
             // `vi_updated` datetime NOT NULL,
 //            `vi_count` mediumint NOT NULL,
+            require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+            dbDelta($sql);
+    }
+}
+
+function banip_create_db() {
+    global $wpdb;
+    $db_name = DB_IP_BANNED;
+    $charset_collate = $wpdb->get_charset_collate();
+    
+    // create the ECPT metabox database table
+    if($wpdb->get_var("show tables like '$db_name'") != $db_name) 
+    {
+            $sql = 'CREATE TABLE ' . $db_name . ' (
+            `ib_id` mediumint NOT NULL AUTO_INCREMENT,
+            `ib_ip` text NOT NULL,
+            `ib_date` datetime NOT NULL,
+            `ib_status` tinyint NOT NULL,
+            UNIQUE KEY ib_id (ib_id)
+            )' . $charset_collate . ';';
+
             require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
             dbDelta($sql);
     }

@@ -25,22 +25,6 @@ class DbModel {
     }
 
 
-//    public function getAllRedirection($type = '') {
-//        
-//        $query = "SELECT * FROM " . DB_REDIRECTION;
-//        
-//        if (!empty($type)) {
-//            $query .= 'WHERE re_type = "' . $type . '"';
-//        }
-//        
-//        $result = mysqli_query($this->link, $query);
-//
-//        $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
-//
-//        return $return;
-//        
-//    }
-    
     public function getAllStoreRedirection_IpCount() {
         
         $query = 'SELECT 
@@ -301,6 +285,34 @@ class DbModel {
             return $return;
         } else {
             return false;
+        }
+    }
+    
+    public function getAllVistorIpTracking_Group($type = '') {
+        
+        if ($type == 'html') {
+            $query = '  SELECT 
+                            *,
+                            count(*) as count
+                        FROM wp_td_visitor_ip
+                        WHERE vi_url = 0
+                        GROUP BY vi_ip, vi_notes';
+        } else {
+            $query = '  SELECT *
+                        FROM (SELECT vi_ip, vi_url, vi_notes, count(*) as count
+                        FROM wp_td_visitor_ip
+                        WHERE vi_url <> 0
+                        GROUP BY vi_ip, vi_url) as Temp
+                        INNER JOIN wp_td_redirection ON Temp.vi_url = re_id';
+        }
+        
+        $result = mysqli_query($this->link, $query);
+        
+        if ($result) {
+            $return = mysqli_fetch_all($result, MYSQLI_ASSOC);
+            return $return;
+        } else {
+            return [];
         }
     }
     

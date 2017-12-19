@@ -237,8 +237,6 @@ function function_redirection_page() {
             
             echo '<td id="redirect_url_' . $redirect['re_id'] . '">' . urldecode($redirect['re_destination']) . '</td>';
             
-//            echo '<td id="proxy_url_' . $redirect['re_id'] . '">' . urldecode($redirect['re_des_proxy']) . '</td>';
-                       
              if ($redirect['re_active']) {
                 echo '<td><input id="re_active_' . $redirect['re_id'] . '" class="redirection-active" type="checkbox" data-toggle="toggle" data-size="mini" data-on="Enabled" data-off="Disabled" checked>';
             } else {

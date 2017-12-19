@@ -35,16 +35,13 @@ add_action('plugins_loaded', 'marketing_tools_plugin_init');
 register_activation_hook(__FILE__, 'tracking_create_db');
 register_activation_hook(__FILE__, 'redirection_create_db');
 register_activation_hook(__FILE__, 'affiliate_create_db');
+register_activation_hook(__FILE__, 'banip_create_db');
 
 function marketing_tools_plugin_init() {
     add_action('admin_menu', 'marketing_tools_admin_menu');
     add_action('login_init', 'send_frame_options_header', 10, 0);
     add_action('admin_init', 'send_frame_options_header', 10, 0);
 }
-
-
-
-
 
 function function_testing_page() {
     

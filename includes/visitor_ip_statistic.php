@@ -117,12 +117,21 @@ function function_visitor_ip_statistic_page() {
     
     echo '
                 <div class="col-lg-6">
-                    <div class="panel panel-default">
+                    <div class="panel panel-default" >
                         <div class="panel-heading">
                         <i class="fa fa-plus-circle fa-fw"></i>
                             <strong><font color="blue">Get IP List</font></strong>
+                            <div class="pull-right">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-xs" id="get_ip_list_collapse">
+                                        Show/Hide
+                                        <span class="caret"></span>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="panel-body">';
+                        
+                        <div class="panel-body" id="get_ip_list_group">';
     
            echo '<form role="form" method="post" action="admin.php?page=get-ip-information">
                                 <div class="form-group">
@@ -147,14 +156,58 @@ function function_visitor_ip_statistic_page() {
                                 <button type="reset" class="btn btn-default">Reset</button>
         </form>';
       
-        echo '</div></div></div></div>';
+        echo '</div></div></div>';
+        
+        
+        echo '
+                <div class="col-lg-6">
+                    <div class="panel panel-default" >
+                        <div class="panel-heading">
+                        <i class="fa fa-plus-circle fa-fw"></i>
+                            <strong><font color="blue">Get IP Banned</font></strong>
+                            <div class="pull-right">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-default btn-xs" id="get_ip_banned_collapse">
+                                        Show/Hide
+                                        <span class="caret"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="panel-body" id="get_ip_banned_group">';
+    
+           echo '<form role="form" method="post" action="admin.php?page=get-ip-information">
+                                <div class="form-group">
+                                            <label>Select Providers</label>
+                                            <select class="form-control" id="ip-provider" name="ip-provider">
+                                                <option value="ipapi.co">ipapi.co</option>
+                                                <option value="ip-api.com">ip-api.com</option>
+                                                <option value="ipdata.co">ipdata.co</option>
+                                                <option value="random" selected>Random Provider</option>
+                                                <!-- <option value="default">Default</option> -->
+                                            </select>
+                                        </div>
+                                        
+                                <div class="form-group">
+                                    <textarea id="ip-list" name="ip-list" class="form-control" rows="9" placeholder="Click [Get IP List] to get the IPs in [Visitor IP Tracking List]. &#10;Data will be remove duplicate." required></textarea>
+                                </div>
+                                
+                                <input type="hidden" id="process_checkIPInfo" name="process_checkIPInfo">
+                                
+                                <button type="button" class="btn btn btn-info" id="get_ip_list">Get IP List</button>
+                                <button type="submit" class="btn btn-success" id="get_ip_info">Get Info</button>
+                                <button type="reset" class="btn btn-default">Reset</button>
+        </form>';
+      
+        echo '</div></div></div>';
     
         echo '<div class="row"> 
             <div class="col-lg-12">';
         echo '<div class="panel panel-default">
                         <div class="panel-heading">
                         <i class="fa fa-bar-chart-o fa-fw"></i>
-                            Visitor IP Tracking List
+                            Visitor IP Tracking Statistic
                             <div class="pull-right">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
@@ -183,13 +236,9 @@ function function_visitor_ip_statistic_page() {
                                 <tr role="row">
                                    <th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;" aria-sort="descending" >No</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 10px;">IP</th>
-                                   <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;">ReID</th> -->
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 100px;">URL</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Source</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
-                                   <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Agent</th> -->
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Proxy Info</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; text-align: center;">Status</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; text-align: center;">Count</th>
                                    <th aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Options</th>
                                 </tr>
                              </thead>
@@ -231,7 +280,12 @@ function function_visitor_ip_statistic_page() {
         // DO Search here
         
     } else {
-        $all_logs = $dbModel->getAllVistorIpTracking();
+        
+        $logs = $dbModel->getAllVistorIpTracking_Group();
+        $html_logs = $dbModel->getAllVistorIpTracking_Group('html');
+        
+        $all_logs = array_merge($logs, $html_logs);
+       
     }
     
     
@@ -239,13 +293,13 @@ function function_visitor_ip_statistic_page() {
         $count = 0;
         foreach ($all_logs as $ip_log) {
 
-            if ($ip_log['re_type'] == 'store') {
+            if (isset($ip_log['re_type']) && $ip_log['re_type'] == 'store') {
                 $url = get_term_link((int)$ip_log['re_source']);
                 $store_info = $dbModel->getStoreInfoByStoreID((int)$ip_log['re_source']);
                 $title = isset($store_info['name']) ? $store_info['name'] : '';
 //                $parent_title = $title;
                 $parent_title = 'Store';
-            } elseif (($ip_log['re_type'] == 'coupon')) {
+            } elseif (isset($ip_log['re_type']) && ($ip_log['re_type'] == 'coupon')) {
                 $url = get_permalink($ip_log['re_source']);
                 $title = get_the_title($ip_log['re_source']);
                 
@@ -281,15 +335,7 @@ function function_visitor_ip_statistic_page() {
                 }
                 
                 echo '<td class="center">' . $parent_title . '</td>';
-                echo '<td class="center">' . $ip_log['vi_date'] . '</td>';
-//                echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
-                echo '<td class="center">' . $ip_log['vi_proxy'] . '</td>';
-                
-                if ($ip_log['vi_redirected'] == 2) {
-                    echo '<td class="center" style="text-align: center;">Blocked</td>';
-                } else {
-                    echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
-                }
+                echo '<td class="center">' . $ip_log['count'] . '</td>';
                 
                 echo '<td>  <button type="button" class="btn btn-success btn-xs button-edit" data-toggle="modal" data-target="#myEditModal" title="Edit"><i class="glyphicon glyphicon-edit"></i></button>';
             echo '  <button type="button" class="btn btn-danger btn-xs button-delete" title="Delete"><i class="fa fa-times"></i></button>';
