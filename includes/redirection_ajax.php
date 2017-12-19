@@ -143,19 +143,20 @@ function ja_ajax_update_htmlfile() {
     }
 
     // process file_name
-    if (strpos($file_name, '.htm') !== false) {
+    if (strpos($file_name, '.php') !== false) {
     } else {
-        $file_name = $file_name . '.html';
+        $file_name = $file_name . '.php';
     }
     $file_name = str_replace(' ', '-', $file_name);
     
-    write_redirection_2html($file_name, $input['redirect_url']);
+    write_redirection_2html($file_name, $input['redirect_url'], $input['update_aff_account']);
     
     $return['no'] = $input['no'];
     $return['file_name'] = $file_name;
     $return['file_path'] = get_home_path() . '/' . $file_name;
     $return['file_url'] = home_url() . '/' . $file_name;
     $return['redirect_url'] = $input['redirect_url'];
+    $return['aff_id'] = $input['update_aff_account'];
     
     wp_send_json_success( $return );
 }

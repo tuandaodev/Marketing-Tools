@@ -26,7 +26,7 @@ function marketing_tools_admin_menu() {
     add_submenu_page('marketing-tools', __('Get IP Info'), __('Get IP Info'), 'manage_options', 'get-ip-information', 'function_get_ip_information_page');
     add_submenu_page('marketing-tools', __('HTML Generator'), __('HTML Generator'), 'manage_options', 'html-generator', 'function_html_generator_page');
     add_submenu_page('marketing-tools', __('Affiliate Manager'), __('Affiliate Manager'), 'manage_options', 'affiliate-manager', 'function_marketing_options_page');
-//    add_submenu_page('marketing-tools', __('Testing'), __('Testing'), 'manage_options', 'marketing-testing', 'function_testing_page');
+    add_submenu_page('marketing-tools', __('Testing'), __('Testing'), 'manage_options', 'marketing-testing', 'function_testing_page');
 }
 
 function redirection_create_db() {

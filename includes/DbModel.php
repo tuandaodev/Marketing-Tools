@@ -341,7 +341,7 @@ class DbModel {
                 break;
                 
             default:
-                $query = 'SELECT * FROM wp_td_visitor_ip INNER JOIN wp_td_redirection ON vi_url = re_id ';
+                $query = 'SELECT * FROM wp_td_visitor_ip LEFT JOIN wp_td_redirection ON vi_url = re_id ';
                 break;
         }
         

@@ -55,14 +55,24 @@ jQuery(document).ready(function($) {
             
             if (columnHeader == "File Name") {
                 formGroup.append('<input class="form-control hidden" name="'+columnID+'_old" id="'+columnID+'_old" value="'+columnValues[i]+'" '+ disableInput +'/>'); 
-            }
+            } 
             
-           formGroup.append('<input class="form-control" name="'+columnID+'" id="'+columnID+'" value="'+columnValues[i]+'" '+ disableInput +'/>'); 
+            if (columnHeader == 'Affiliate') {
+                formGroup.append('<select class="form-control" name="update_aff_account" id="update_aff_account"></select>'); 
+            } else {
+                formGroup.append('<input class="form-control" name="'+columnID+'" id="'+columnID+'" value="'+columnValues[i]+'" '+ disableInput +'/>'); 
+            }
             
             modalForm.append(formGroup);
        });
        modalBody.append(modalForm);
        $('.modal-body').html(modalBody);
+       
+       var $options = $("#aff_account > option").clone();
+
+        $('#update_aff_account').append($options);
+        
+        $('#update_aff_account').val($('#aff_id').val());
      });
      
      $('.modal-footer .btn-primary').click(function() {
@@ -74,14 +84,17 @@ jQuery(document).ready(function($) {
                 action: 'update_htmlfile' 
             }, 
             function(data) {
-                $('#close-update-modal').click();
+                
                 $("#file_name_" + data.data.no).html(data.data.file_name);
+                $("#aff_id_" + data.data.no).html(data.data.aff_id);
+                $("#aff_name_" + data.data.no).html($('#update_aff_account option:selected').text());
                 $("#file_path_" + data.data.no).html(data.data.file_path);
                 $("#file_url_" + data.data.no).html(data.data.file_url);
                 $("#redirect_url_" + data.data.no).html(data.data.redirect_url);
                 
                 console.log("Updated HTML: " + data.data.file_name);
                 
+                $('#close-update-modal').click();
         });
             
      });
