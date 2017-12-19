@@ -13,4 +13,5 @@ require_once('includes/plugin_init.php');
 require_once('includes/redirection.php');
 require_once('includes/redirection_ajax.php');
 require_once('includes/visitor_ip_tracking.php');
+require_once('includes/visitor_ip_statistic.php');
 require_once('includes/get_ip_information.php');

@@ -12,9 +12,9 @@
  * @author dmtuan
  */
 
-function function_visitor_ip_tracking_page() {
+function function_visitor_ip_statistic_page() {
     
-    load_assets_visitor_ip_tracking();
+    load_assets_visitor_ip_statistic();
 //    global_admin_ajax();
     
     $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
@@ -333,17 +333,4 @@ function function_visitor_ip_tracking_page() {
 </div>';
 }
 
-//function get_time2query($POST) {
-//    $return['query_timetype'] = $POST['query_timetype'];
-//    switch ($POST['query_timetype']) {
-//        case 'time_custom':
-//            if (isset($POST['time_start']) && !empty($POST['time_start'])) {
-//                $input['time_start'] = date('Y-m-d H:i:s', strtotime($POST['time_start']));
-//            }
-//            if (isset($POST['time_end']) && !empty($POST['time_end'])) {
-//                $input['time_end'] = date('Y-m-d H:i:s', strtotime($POST['time_end']));
-//            }
-//            break;
-//    }
-//    return $return;
-//}
+
