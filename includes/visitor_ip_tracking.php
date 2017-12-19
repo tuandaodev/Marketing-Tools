@@ -189,7 +189,8 @@ function function_visitor_ip_tracking_page() {
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
                                    <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Agent</th> -->
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Proxy Info</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px; text-align: center;">Redirected</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; text-align: center;">Status</th>
+                                   <th aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Options</th>
                                 </tr>
                              </thead>
                                 <tbody>';
@@ -289,7 +290,10 @@ function function_visitor_ip_tracking_page() {
                 } else {
                     echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
                 }
-
+                
+                echo '<td>  <button type="button" class="btn btn-success btn-xs button-edit" data-toggle="modal" data-target="#myEditModal" title="Edit"><i class="glyphicon glyphicon-edit"></i></button>';
+            echo '  <button type="button" class="btn btn-danger btn-xs button-delete" title="Delete"><i class="fa fa-times"></i></button>';
+            echo '</td>';
             echo '</tr>';
         }
     }

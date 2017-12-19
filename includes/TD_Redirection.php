@@ -57,7 +57,7 @@ if (!class_exists('TD_Redirection')) {
                 if ($exists['re_active'] == 0 || $check_referer) {
                     $ip_safe = getIpSafe($ip);
                     if (isset($ip_safe['ip'])) {
-                        $proxy_log = 'Country: ' . $ip_safe['countryName'] . ' | ISP: ' . $ip_safe['isp'] . ' | Block: ' . $ip_safe['block'];
+                        $proxy_log = 'Block: ' . $ip_safe['block'] . ', Country: ' . $ip_safe['countryName'] . ', ISP: ' . $ip_safe['isp'];
                     } else {
                         $proxy_log = $ip_safe;
                     }
