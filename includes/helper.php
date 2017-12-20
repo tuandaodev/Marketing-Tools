@@ -19,47 +19,6 @@ function prefix_enqueue() {
     
 }
 
-function load_assets_visitor_ip_statistic() {
-    
-    load_assets_common();
-    
-    load_assets_datetime_picker();
-    
-//    wp_register_script('prefix_iptracking', WC_PLUGIN_URL . 'assets/visitor_ip_tracking.js');
-//    wp_enqueue_script('prefix_iptracking');
-    
-    wp_enqueue_style(
-            'jquery-auto-complete',
-            'https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.css',
-            array(),
-            '1.0.7'
-    );
-    wp_enqueue_script(
-            'jquery-auto-complete',
-            'https://cdnjs.cloudflare.com/ajax/libs/jquery-autocomplete/1.0.7/jquery.auto-complete.min.js',
-            array( 'jquery' ),
-            '1.0.7',
-            true
-    );
-    
-    wp_enqueue_script(
-		'global',
-		WC_PLUGIN_URL . 'assets/visitor_ip_statistic.js',
-		array( 'jquery' ),
-		'1.0.0',
-		true
-	);
-    
-    wp_localize_script(
-		'global',
-		'global',
-		array(
-			'ajax' => admin_url( 'admin-ajax.php' ),
-		)
-	);
-    
-}
-
 function load_assets_visitor_ip_tracking() {
     
     load_assets_common();
@@ -293,10 +252,10 @@ function get_time2query($POST) {
     switch ($POST['query_timetype']) {
         case 'time_custom':
             if (isset($POST['time_start']) && !empty($POST['time_start'])) {
-                $input['time_start'] = date('Y-m-d H:i:s', strtotime($POST['time_start']));
+                $return['time_start'] = date('Y-m-d H:i:s', strtotime($POST['time_start']));
             }
             if (isset($POST['time_end']) && !empty($POST['time_end'])) {
-                $input['time_end'] = date('Y-m-d H:i:s', strtotime($POST['time_end']));
+                $return['time_end'] = date('Y-m-d H:i:s', strtotime($POST['time_end']));
             }
             break;
     }

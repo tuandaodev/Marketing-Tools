@@ -162,6 +162,22 @@ class DbModel {
             return [];
         }
     }
+    
+    public function check_in_blacklist($ip) {
+        
+        $query = 'SELECT * FROM wp_td_ipbanned WHERE ib_ip = "' . $ip . '"';
+        
+        $result = mysqli_query($this->link, $query);
+        
+        if ($result) {
+            $return = mysqli_fetch_assoc($result);
+            if (count($return) > 0) {
+                return true;
+            } 
+        } 
+        
+        return false;
+    }
 
     public function update_redirection($re_id, $source, $aff_id, $destination, $type = 'post', $source_multi = '') {
         
@@ -288,7 +304,40 @@ class DbModel {
         }
     }
     
-    public function getAllVistorIpTracking_Group($type = '') {
+    public function getAllVistorIpTracking_Group($type = '', $input = []) {
+        
+        $query_time = '';
+        
+        if (isset($input['query_timetype'])) {
+            switch ($input['query_timetype']) {
+                case 'time_all':
+                    break;
+                case 'time_today':
+                    $query_time = ' AND DATE(vi_date) = CURDATE() ';
+                    break;
+                case 'time_7day':
+                    $query_time = ' AND vi_date >= DATE_SUB(CURDATE(), INTERVAL 7 DAY) ';
+                    break;
+                case 'time_1month':
+                    $query_time = ' AND vi_date >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) ';
+                    break;
+                case 'time_3month':
+                    $query_time  = ' AND vi_date >= DATE_SUB(CURDATE(), INTERVAL 3 MONTH) ';
+                    break;
+                case 'time_custom':
+                    if (isset($input['time_start']) && !empty($input['time_start'])) {
+                        $isand = true;
+                        $query_time = ' AND vi_date >= "' . $input['time_start'] . '"';
+                    }
+
+                    if (isset($input['time_end']) && !empty($input['time_end'])) {
+                        $query_time .= ' AND vi_date <= "' . $input['time_end'] . '"';
+                    }
+                    break;
+
+            }
+        }
+        
         
         if ($type == 'html') {
             $query = '  SELECT *
@@ -297,7 +346,7 @@ class DbModel {
                                 *,
                                 count(*) as count
                         FROM wp_td_visitor_ip
-                        WHERE vi_url = 0
+                        WHERE vi_url = 0 ' . $query_time . '
                         GROUP BY vi_ip, vi_notes ) as Temp
                         LEFT JOIN wp_td_ipbanned ON Temp.vi_ip = ib_ip
                         ';
@@ -305,7 +354,7 @@ class DbModel {
             $query = '  SELECT *
                         FROM (SELECT *, count(*) as count
                         FROM wp_td_visitor_ip
-                        WHERE vi_url <> 0
+                        WHERE vi_url <> 0 ' . $query_time . '
                         GROUP BY vi_ip, vi_url
                         ) as Temp
                         INNER JOIN wp_td_redirection ON Temp.vi_url = re_id
@@ -331,13 +380,15 @@ class DbModel {
             case 'query_all':
                 $query = 'SELECT * 
                     FROM wp_td_visitor_ip 
-                    INNER JOIN wp_td_redirection ON vi_url = re_id';
+                    LEFT JOIN wp_td_redirection ON vi_url = re_id
+                    LEFT JOIN wp_td_ipbanned ON ib_ip = vi_ip';
                 break;
             
             case 'query_store':
                 $query = 'SELECT * 
                     FROM wp_td_visitor_ip 
-                    INNER JOIN wp_td_redirection ON vi_url = re_id';
+                    INNER JOIN wp_td_redirection ON vi_url = re_id
+                    LEFT JOIN wp_td_ipbanned ON ib_ip = vi_ip';
                 
                 if (isset($input['store_id']) && !empty($input['store_id'])) {
                     $query .= ' WHERE re_parent = ' . $input['store_id'];
@@ -349,7 +400,8 @@ class DbModel {
             case 'query_coupon':
                 $query = 'SELECT * 
                     FROM wp_td_visitor_ip 
-                    INNER JOIN wp_td_redirection ON vi_url = re_id';
+                    INNER JOIN wp_td_redirection ON vi_url = re_id
+                    LEFT JOIN wp_td_ipbanned ON ib_ip = vi_ip';
                 
                 if (isset($input['post_id']) && !empty($input['post_id'])) {
                     $query .= ' WHERE re_source = ' . $input['post_id'];

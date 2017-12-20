@@ -76,15 +76,15 @@ function function_visitor_ip_tracking_page() {
                                     <input type="number" class="form-control" id="store_id" name="store_id" value="">
                                 </div>
                                 
-                                <div class="form-group">
+                                <div class="form-group" id="time_select_group">
                                         <label>Quick Time Select</label>
                                             <select class="form-control" id="query_timetype" name="query_timetype">
-                                                <option value="time_all">All Time</option>
+                                                <option value="time_all" selected>All Time</option>
                                                 <option value="time_today">Today</option>
                                                 <option value="time_7day">Last 7 days</option>
                                                 <option value="time_1month">Last month</option>
                                                 <option value="time_3month">Last 3 months</option>
-                                                <option value="time_custom" selected>Custom</option>
+                                                <option value="time_custom">Custom</option>
                                             </select>
                                         </div>
                                 
@@ -161,56 +161,57 @@ function function_visitor_ip_tracking_page() {
       
         echo '</div></div></div>';
     
-        echo '
-                <div class="col-lg-6">
-                    <div class="panel panel-default" >
-                        <div class="panel-heading">
-                        <i class="fa fa-plus-circle fa-fw"></i>
-                            <strong><font color="blue">Get IP Banned</font></strong>
-                            <div class="pull-right">
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-default btn-xs" id="get_ip_banned_collapse">
-                                        Show/Hide
-                                        <span class="caret"></span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="panel-body" id="get_ip_banned_group">';
-    
-           echo '<form role="form" method="post" action="admin.php?page=get-ip-information">
-                                <div class="form-group">
-                                            <label>Select Providers</label>
-                                            <select class="form-control" id="ip-provider" name="ip-provider">
-                                                <option value="ipapi.co">ipapi.co</option>
-                                                <option value="ip-api.com">ip-api.com</option>
-                                                <option value="ipdata.co">ipdata.co</option>
-                                                <option value="random" selected>Random Provider</option>
-                                                <!-- <option value="default">Default</option> -->
-                                            </select>
-                                        </div>
-                                        
-                                <div class="form-group">
-                                    <textarea id="ip-list" name="ip-list" class="form-control" rows="9" placeholder="Click [Get IP List] to get the IPs in [Visitor IP Tracking List]. &#10;Data will be remove duplicate." required></textarea>
-                                </div>
-                                
-                                <input type="hidden" id="process_checkIPInfo" name="process_checkIPInfo">
-                                
-                                <button type="button" class="btn btn btn-info" id="get_ip_list">Get IP List</button>
-                                <button type="submit" class="btn btn-success" id="get_ip_info">Get Info</button>
-                                <button type="reset" class="btn btn-default">Reset</button>
-        </form>';
-      
-        echo '</div></div></div></div>';
+//        echo '
+//                <div class="col-lg-6">
+//                    <div class="panel panel-default" >
+//                        <div class="panel-heading">
+//                        <i class="fa fa-plus-circle fa-fw"></i>
+//                            <strong><font color="blue">Get IP Banned</font></strong>
+//                            <div class="pull-right">
+//                                <div class="btn-group">
+//                                    <button type="button" class="btn btn-default btn-xs" id="get_ip_banned_collapse">
+//                                        Show/Hide
+//                                        <span class="caret"></span>
+//                                    </button>
+//                                </div>
+//                            </div>
+//                        </div>
+//                        
+//                        <div class="panel-body" id="get_ip_banned_group">';
+//    
+//           echo '<form role="form" method="post" action="admin.php?page=get-ip-information">
+//                                <div class="form-group">
+//                                            <label>Select Providers</label>
+//                                            <select class="form-control" id="ip-provider" name="ip-provider">
+//                                                <option value="ipapi.co">ipapi.co</option>
+//                                                <option value="ip-api.com">ip-api.com</option>
+//                                                <option value="ipdata.co">ipdata.co</option>
+//                                                <option value="random" selected>Random Provider</option>
+//                                                <!-- <option value="default">Default</option> -->
+//                                            </select>
+//                                        </div>
+//                                        
+//                                <div class="form-group">
+//                                    <textarea id="ip-list" name="ip-list" class="form-control" rows="9" placeholder="Click [Get IP List] to get the IPs in [Visitor IP Tracking List]. &#10;Data will be remove duplicate." required></textarea>
+//                                </div>
+//                                
+//                                <input type="hidden" id="process_checkIPInfo" name="process_checkIPInfo">
+//                                
+//                                <button type="button" class="btn btn btn-info" id="get_ip_list">Get IP List</button>
+//                                <button type="submit" class="btn btn-success" id="get_ip_info">Get Info</button>
+//                                <button type="reset" class="btn btn-default">Reset</button>
+//        </form>';
+//      
+//        echo '</div></div></div></div>';
         
         echo '<div class="row"> 
             <div class="col-lg-12">';
         echo '<div class="panel panel-default">
                         <div class="panel-heading">
                         <i class="fa fa-bar-chart-o fa-fw"></i>
-                            Visitor IP Tracking List
-                            <div class="pull-right">
+                            Visitor IP Tracking List';
+        if ($query_mode != 'query_ip') {
+            echo '                <div class="pull-right">
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
                                         Options
@@ -223,8 +224,10 @@ function function_visitor_ip_tracking_page() {
                                         </li>
                                     </ul>
                                 </div>
-                            </div>
-                        </div>
+                            </div>';
+            }
+            
+                        echo '</div>
                         <!-- /.panel-heading -->
                         <div class="panel-body">
                             <div id="dataTables-example_wrapper" class="dataTables_wrapper form-inline dt-bootstrap no-footer">
@@ -244,9 +247,9 @@ function function_visitor_ip_tracking_page() {
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 100px;">URL</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Source</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
-                                   <!-- <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Agent</th> -->
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Proxy Info</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; text-align: center;">Status</th>';
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; text-align: center;">Status</th>
+                                   <th aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 1px;">Options</th>';
         } else {
             echo '<th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;" aria-sort="descending" >No</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 10px;">IP</th>
@@ -255,7 +258,7 @@ function function_visitor_ip_tracking_page() {
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 10px; display:none;">First Access</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px; display:none;">Proxy Info</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; text-align: center;">Count</th>
-                                   <th aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Options</th>';
+                                   <th aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 1px;">Options</th>';
         }                           
                                echo '</tr>
                              </thead>
@@ -291,8 +294,11 @@ function function_visitor_ip_tracking_page() {
                 break;
             
             case 'query_ip':
-                $logs = $dbModel->getAllVistorIpTracking_Group();
-                $html_logs = $dbModel->getAllVistorIpTracking_Group('html');
+                
+                $input = get_time2query($_POST);
+                
+                $logs = $dbModel->getAllVistorIpTracking_Group('', $input);
+                $html_logs = $dbModel->getAllVistorIpTracking_Group('html', $input);
         
                 $all_logs = array_merge($logs, $html_logs);
                 
@@ -400,15 +406,29 @@ function show_table_log($all_logs) {
                 }
                 
                 echo '<td class="center">' . $parent_title . '</td>';
-                echo '<td class="center">' . $ip_log['vi_date'] . '</td>';
+                echo '<td class="center" >' . $ip_log['vi_date'] . '</td>';
 //                echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
-                echo '<td class="center">' . $ip_log['vi_proxy'] . '</td>';
+                echo '<td class="center" >' . $ip_log['vi_proxy'] . '</td>';
                 
                 if ($ip_log['vi_redirected'] == 2) {
                     echo '<td class="center" style="text-align: center;">Blocked</td>';
                 } else {
                     echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
                 }
+                
+                echo '<td>';
+            
+                
+//            $ip_log_id = str_replace('.', '_', $ip_log['vi_ip']);
+            
+            if (!empty($ip_log['ib_ip'])) {
+                echo '  <button type="button" id="' . $ip_log['vi_ip'] . '_block" style="display: none;" class="btn btn-success btn-xs button-block" title="Click to block this IP" onclick="doBlockIP(\'' . $ip_log['vi_ip'] . '\');"><i class="fa fa-unlock"></i></button>';
+                echo '  <button type="button" id="' . $ip_log['vi_ip'] . '_unblock" class="btn btn-danger btn-xs button-unblock" title="Click to unblock this IP" onclick="doUnblockIP(\'' . $ip_log['vi_ip'] . '\');"><i class="fa fa-lock"></i></button>';
+            } else {
+                echo '  <button type="button" id="' . $ip_log['vi_ip'] . '_block" class="btn btn-success btn-xs button-block" title="Click to block this IP" onclick="doBlockIP(\'' . $ip_log['vi_ip'] . '\');"><i class="fa fa-unlock"></i></button>';
+                echo '  <button type="button" id="' . $ip_log['vi_ip'] . '_unblock" style="display: none;" class="btn btn-danger btn-xs button-unblock" title="Click to unblock this IP" onclick="doUnblockIP(\'' . $ip_log['vi_ip'] . '\');"><i class="fa fa-lock"></i></button>';
+            }
+            echo '</td>';
                 
             echo '</tr>';
         }

@@ -97,6 +97,7 @@ jQuery(document).ready(function($) {
         $('#search_post_group').hide();
         $("#post_id").prop('required',false);
         $("#store_id").prop('required',false);
+//        $('#time_select_group').show();
     }
     
 
@@ -118,6 +119,9 @@ jQuery(document).ready(function($) {
                 $('#search_post_group').show();
                 $("#post_id").prop('required',true);
                 break;
+            case 'query_ip':
+                query_all();
+                break;
             case 'query_all':
 //            default:
                 query_all();
@@ -128,6 +132,8 @@ jQuery(document).ready(function($) {
         }
     });
     
+    $('#datetime_start_group').hide();
+    $('#datetime_end_group').hide();
     $('#query_timetype').on('change', function() {
         switch (this.value) {
 //            case 'time_all':

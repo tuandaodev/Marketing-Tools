@@ -67,10 +67,17 @@ if (!class_exists('TD_Redirection')) {
                         $this->redirection_by_url(urldecode($exists['re_destination']));
                     } else {
                         $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1, $proxy_log);
-                        $aff = $dbModel->getAffiliateAccountByID($exists['re_aff']);
-                        $aff_link = $this->build_aff_url($aff['aff_code'], $exists['re_destination']);
                         
-                        $this->redirection_by_url($aff_link);
+                        $ip_block = $dbModel->check_in_blacklist($ip);
+                        
+                        if ($ip_block == true) {    // Client in BACK LIST
+                            $this->redirection_by_url(urldecode($exists['re_destination']));
+                        } else {
+                            $aff = $dbModel->getAffiliateAccountByID($exists['re_aff']);
+                            $aff_link = $this->build_aff_url($aff['aff_code'], $exists['re_destination']);
+                        
+                            $this->redirection_by_url($aff_link);
+                        }
                     }
                     
                 } else {
