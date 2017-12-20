@@ -248,7 +248,7 @@ function function_visitor_ip_tracking_page() {
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px;">Source</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Last Access</th>
                                    <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 50px;">Proxy Info</th>
-                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; text-align: center;">Status</th>
+                                   <th class="sorting" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 5px; text-align: center;">Redirect Status</th>
                                    <th aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 1px;">Options</th>';
         } else {
             echo '<th class="sorting_desc" tabindex="0" aria-controls="dataTables-example" rowspan="1" colspan="1" style="width: 2px;" aria-sort="descending" >No</th>
@@ -410,11 +410,23 @@ function show_table_log($all_logs) {
 //                echo '<td class="center">' . $ip_log['vi_notes'] . '</td>';
                 echo '<td class="center" >' . $ip_log['vi_proxy'] . '</td>';
                 
-                if ($ip_log['vi_redirected'] == 2) {
-                    echo '<td class="center" style="text-align: center;">Blocked</td>';
-                } else {
-                    echo '<td class="center" style="text-align: center;">' . $ip_log['vi_redirected'] . '</td>';
+                switch ($ip_log['vi_redirected']) {
+                    case 0:
+                        $redirect_status = "Non Redirect";
+                        break;
+                    case 1: 
+                        $redirect_status = "Sucess Redirect";
+                        break;
+                    case 2:
+                        $redirect_status = "Blocked by API";
+                        break;
+                    case 3:
+                        $redirect_status = "Blocked by BackList";
+                        break;
+                      
                 }
+
+                echo '<td class="center" style="text-align: center;">' . $redirect_status . '</td>';
                 
                 echo '<td>';
             

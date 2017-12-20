@@ -54,6 +54,11 @@ if (!class_exists('TD_Redirection')) {
                 $ip = getClientIP();
                 $agent = getClientAgent();
                 
+                // 0: Non Direct
+                // 1: Success REDIRECTED
+                // 2: Block by API
+                // 3: Manual Block
+                
                 if ($exists['re_active'] == 0 || $check_referer) {
                     $ip_safe = getIpSafe($ip);
                     if (isset($ip_safe['ip'])) {
@@ -66,17 +71,24 @@ if (!class_exists('TD_Redirection')) {
                         $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 2, $proxy_log);
                         $this->redirection_by_url(urldecode($exists['re_destination']));
                     } else {
-                        $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1, $proxy_log);
+                        
                         
                         $ip_block = $dbModel->check_in_blacklist($ip);
                         
                         if ($ip_block == true) {    // Client in BACK LIST
+                            
+                            $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 3, $proxy_log);
                             $this->redirection_by_url(urldecode($exists['re_destination']));
+                            
                         } else {
+                            
+                            $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1, $proxy_log);
+                            
                             $aff = $dbModel->getAffiliateAccountByID($exists['re_aff']);
                             $aff_link = $this->build_aff_url($aff['aff_code'], $exists['re_destination']);
                         
                             $this->redirection_by_url($aff_link);
+                            
                         }
                     }
                     
