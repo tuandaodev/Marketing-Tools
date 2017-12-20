@@ -460,11 +460,20 @@ function show_table_log_ip($all_logs) {
                 echo '<td class="center">' . $parent_title . '</td>';
                 echo '<td class="center" style="display:none;">' . $ip_log['vi_date'] . '</td>';
                 echo '<td class="center" style="display:none;">' . $ip_log['vi_proxy'] . '</td>';
-                echo '<td class="center">' . $ip_log['count'] . '</td>';
+                echo '<td class="center" style="text-align:center;">' . $ip_log['count'] . '</td>';
                 
                 echo '<td>  <button type="button" class="btn btn-success btn-xs button-detail" data-toggle="modal" data-target="#myEditModal" title="Edit"><i class="glyphicon glyphicon-edit"></i></button>';
-            echo '  <button type="button" class="btn btn-success btn-xs button-unblock" title="Unblock"><i class="fa fa-unlock"></i></button>';
-            echo '  <button type="button" class="btn btn-danger btn-xs button-block" title="Block"><i class="fa fa-lock"></i></button>';
+            
+                
+//            $ip_log_id = str_replace('.', '_', $ip_log['vi_ip']);
+            
+            if (!empty($ip_log['ib_ip'])) {
+                echo '  <button type="button" id="' . $ip_log['vi_ip'] . '_block" style="display: none;" class="btn btn-success btn-xs button-block" title="Click to block this IP" onclick="doBlockIP(\'' . $ip_log['vi_ip'] . '\');"><i class="fa fa-unlock"></i></button>';
+                echo '  <button type="button" id="' . $ip_log['vi_ip'] . '_unblock" class="btn btn-danger btn-xs button-unblock" title="Click to unblock this IP" onclick="doUnblockIP(\'' . $ip_log['vi_ip'] . '\');"><i class="fa fa-lock"></i></button>';
+            } else {
+                echo '  <button type="button" id="' . $ip_log['vi_ip'] . '_block" class="btn btn-success btn-xs button-block" title="Click to block this IP" onclick="doBlockIP(\'' . $ip_log['vi_ip'] . '\');"><i class="fa fa-unlock"></i></button>';
+                echo '  <button type="button" id="' . $ip_log['vi_ip'] . '_unblock" style="display: none;" class="btn btn-danger btn-xs button-unblock" title="Click to unblock this IP" onclick="doUnblockIP(\'' . $ip_log['vi_ip'] . '\');"><i class="fa fa-lock"></i></button>';
+            }
             echo '</td>';
             echo '</tr>';
         }

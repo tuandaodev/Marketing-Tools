@@ -8,11 +8,11 @@
 
 function prefix_enqueue() {       
     // JS
-    wp_register_script('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js');
+    wp_register_script('prefix_bootstrap', WC_PLUGIN_URL . 'assets/js/bootstrap.min.js');
     wp_enqueue_script('prefix_bootstrap');
     
     // CSS
-    wp_register_style('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
+    wp_register_style('prefix_bootstrap', WC_PLUGIN_URL . 'assets/css/bootstrap.min.css');
     wp_enqueue_style('prefix_bootstrap');
     
     wp_enqueue_style('my-styles', WC_PLUGIN_URL . 'assets/styles.css' );
@@ -178,26 +178,24 @@ function load_assets_tool_options() {
 }
 
 function load_assets_common() {
-        // JS
-       
-    wp_register_script('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js');
+    
+    // JS
+    wp_register_script('prefix_bootstrap', WC_PLUGIN_URL . 'assets/js/bootstrap.min.js');
     wp_enqueue_script('prefix_bootstrap');
     wp_register_script('prefix_jquery', WC_PLUGIN_URL . 'assets/jquery-3.2.1.min.js');
     wp_enqueue_script('prefix_jquery'); 
-    wp_register_script('prefix_datatable', '//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js');
-    wp_enqueue_script('prefix_datatable');
-    wp_register_script('prefix_datatable', '//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js');
+    wp_register_script('prefix_datatable', WC_PLUGIN_URL . 'assets/js/jquery.dataTables.min.js');
     wp_enqueue_script('prefix_datatable');
     wp_register_script('prefix_toggle', WC_PLUGIN_URL . 'assets/bootstrap-toggle.js');
     wp_enqueue_script('prefix_toggle');
     
 //    
     // CSS
-    wp_register_style('prefix_bootstrap', '//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css');
+    wp_register_style('prefix_bootstrap', WC_PLUGIN_URL . 'assets/css/bootstrap.min.css');
     wp_enqueue_style('prefix_bootstrap');
-    wp_register_style('prefix_datatable', '//cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css');
+    wp_register_style('prefix_datatable', WC_PLUGIN_URL . 'assets/css/jquery.dataTables.min.css');
     wp_enqueue_style('prefix_datatable');
-    wp_register_style('prefix_toggle', '//gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css');
+    wp_register_style('prefix_toggle', WC_PLUGIN_URL . 'assets/css/bootstrap-toggle.min.css');
     wp_enqueue_style('prefix_toggle');
     
     wp_enqueue_style('my-styles', WC_PLUGIN_URL . 'assets/styles.css' );

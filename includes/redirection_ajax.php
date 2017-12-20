@@ -243,3 +243,37 @@ function ja_ajax_view_ipinfo() {
 add_action( 'wp_ajax_view_ipinfo', 'ja_ajax_view_ipinfo' );
 add_action( 'wp_ajax_nopriv_view_ipinfo', 'ja_ajax_view_ipinfo' );
 
+
+function ja_ajax_add_ipbanned() {
+    
+    if (!isset($_POST['ip'])) {
+        return false;
+    }
+    
+    $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    
+    $return = $dbModel->add_IPBanned($_POST['ip']);
+
+    wp_send_json_success( $return );
+
+}
+
+add_action( 'wp_ajax_add_ipbanned', 'ja_ajax_add_ipbanned' );
+add_action( 'wp_ajax_nopriv_add_ipbanned', 'ja_ajax_add_ipbanned' );
+
+function ja_ajax_remove_ipbanned() {
+    
+    if (!isset($_POST['ip'])) {
+        return false;
+    }
+    
+    $dbModel = new DbModel(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+    
+    $return = $dbModel->remove_IPBanned($_POST['ip']);
+
+    wp_send_json_success( $return );
+
+}
+
+add_action( 'wp_ajax_remove_ipbanned', 'ja_ajax_remove_ipbanned' );
+add_action( 'wp_ajax_nopriv_remove_ipbanned', 'ja_ajax_remove_ipbanned' );

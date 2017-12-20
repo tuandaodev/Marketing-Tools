@@ -12,6 +12,45 @@ function isEmpty(obj) {
     return true;
 }
 
+function doBlockIP(ip) {
+        
+        $('[id="' + ip + '_block"').prop('disabled', true);
+        
+        $.post(
+        global.ajax, 
+        {   
+            ip: ip,
+            action: 'add_ipbanned' 
+        }, 
+        function(data) {
+//            console.log(data);
+            console.log("Blocked IP: " + ip);
+            $('[id="' + ip + '_block"').hide();
+            $('[id="' + ip + '_block"').prop('disabled', false);
+            $('[id="' + ip + '_unblock"').show();
+        });
+};
+    
+function doUnblockIP(ip) {
+    
+    $('[id="' + ip + '_unblock"').prop('disabled', true);
+
+    $.post(
+        global.ajax, 
+        {   
+            ip: ip,
+            action: 'remove_ipbanned' 
+        }, 
+        function(data) {
+//            console.log(data);
+            console.log("Unblocked IP: " + ip);
+            $('[id="' + ip + '_unblock"').prop('disabled', false);
+            $('[id="' + ip + '_unblock"').hide();
+            $('[id="' + ip + '_block"').show();
+        });
+            
+};    
+
 jQuery(document).ready(function($) {
     
     $(window).keydown(function(event){
@@ -114,6 +153,8 @@ jQuery(document).ready(function($) {
     if ($('#current_query_mode').val() != 'query_ip') {
         table.columns( [ 4,5 ] ).visible( false, false );
     }
+    
+    $('#query_type').val($('#current_query_mode').val());
     
     $('li a').click(function(e) {
         

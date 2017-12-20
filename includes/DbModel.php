@@ -291,12 +291,15 @@ class DbModel {
     public function getAllVistorIpTracking_Group($type = '') {
         
         if ($type == 'html') {
-            $query = '  SELECT 
-                            *,
-                            count(*) as count
+            $query = '  SELECT *
+                        FROM (
+                        SELECT 
+                                *,
+                                count(*) as count
                         FROM wp_td_visitor_ip
                         WHERE vi_url = 0
-                        GROUP BY vi_ip, vi_notes
+                        GROUP BY vi_ip, vi_notes ) as Temp
+                        LEFT JOIN wp_td_ipbanned ON Temp.vi_ip = ib_ip
                         ';
         } else {
             $query = '  SELECT *
@@ -305,7 +308,8 @@ class DbModel {
                         WHERE vi_url <> 0
                         GROUP BY vi_ip, vi_url
                         ) as Temp
-                        INNER JOIN wp_td_redirection ON Temp.vi_url = re_id';
+                        INNER JOIN wp_td_redirection ON Temp.vi_url = re_id
+                        LEFT JOIN wp_td_ipbanned ON Temp.vi_ip = ib_ip';
         }
         
         $result = mysqli_query($this->link, $query);
@@ -545,12 +549,23 @@ class DbModel {
         
     }
     
-    public function insertBlockIP($ip) {
+    public function add_IPBanned($ip) {
         
-        $query = '  INSERT INTO wp_td_ipbanned(aff_name, aff_code)
+        $query = '  INSERT INTO wp_td_ipbanned(ib_ip, ib_date)
                         VALUES (
                         "' . $ip . '",
                         Now())';
+        
+        $result = mysqli_query($this->link, $query);
+
+        return $result;
+        
+    }
+    
+    public function remove_IPBanned($ip) {
+        
+        $query = '  DELETE FROM wp_td_ipbanned
+                    WHERE ib_ip = "' . $ip . '"';
         
         $result = mysqli_query($this->link, $query);
 
