@@ -101,7 +101,7 @@ class DbModel {
         
     }
     
-    public function add_redirection($source, $aff_id, $destination, $type = 'post', $active = 1, $source_multi = '') {
+    public function add_redirection($source, $aff_id, $destination, $type = 'post', $active = 0, $source_multi = '') {
         
         $exists = $this->check_exists_redirection($source, $type);
         

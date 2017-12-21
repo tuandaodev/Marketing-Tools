@@ -232,7 +232,7 @@ function getIpSafe($ip) {
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
     curl_setopt($ch, CURLOPT_HEADER, FALSE);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-        'X-Key: MTIwNjpnQVppcnJGbW1YNXJvVER0MzVzdDFSRHdtNlBGSUNudQ=='
+        'X-Key: MTIzODpZQ3ExblV2ZFRjQzZ0QkN6NUtQUlRvUmJvM3p1dE1qSg=='
     ));
 
     $response = curl_exec($ch);

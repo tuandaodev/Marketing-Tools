@@ -46,7 +46,6 @@ if (!class_exists('TD_Redirection_HTML')) {
 
                 $this->redirection_by_url($aff_link);
             }
-
         }
 
 
@@ -65,8 +64,12 @@ if (!class_exists('TD_Redirection_HTML')) {
             
             $base_url = "http://go.masoffer.net/v0/{$aff_code}?url=";
             
-            $builded_url = $base_url . urlencode($url);
-            
+            if ( urlencode(urldecode($url)) === $url){
+                $builded_url = $base_url . $url;
+            } else {
+                $builded_url = $base_url . urlencode($url);
+            }
+
             return $builded_url;
             
         }

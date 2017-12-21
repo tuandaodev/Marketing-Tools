@@ -60,6 +60,14 @@ if (!class_exists('TD_Redirection')) {
                 // 3: Manual Block
                 
                 if ($exists['re_active'] == 0 || $check_referer) {
+                    
+                    $ip_block = $dbModel->check_in_blacklist($ip);
+                    
+                    if ($ip_block == true) {    // Client in BACK LIST
+                        $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 3, $proxy_log);
+                        $this->redirection_by_url(urldecode($exists['re_destination']));
+                    }
+                    
                     $ip_safe = getIpSafe($ip);
                     if (isset($ip_safe['ip'])) {
                         $proxy_log = 'Block: ' . $ip_safe['block'] . ', Country: ' . $ip_safe['countryName'] . ', ISP: ' . $ip_safe['isp'];
@@ -68,31 +76,22 @@ if (!class_exists('TD_Redirection')) {
                     }
 
                     if (isset($ip_safe['block']) && $ip_safe['block'] == 1) {
+                        // Block by API and add the IP to blacklist
                         $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 2, $proxy_log);
+                        $dbModel->add_IPBanned($ip);
                         $this->redirection_by_url(urldecode($exists['re_destination']));
                     } else {
-                        
-                        
-                        $ip_block = $dbModel->check_in_blacklist($ip);
-                        
-                        if ($ip_block == true) {    // Client in BACK LIST
-                            
-                            $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 3, $proxy_log);
-                            $this->redirection_by_url(urldecode($exists['re_destination']));
-                            
-                        } else {
-                            
-                            $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1, $proxy_log);
-                            
-                            $aff = $dbModel->getAffiliateAccountByID($exists['re_aff']);
-                            $aff_link = $this->build_aff_url($aff['aff_code'], $exists['re_destination']);
-                        
-                            $this->redirection_by_url($aff_link);
-                            
-                        }
+                        // Sucess Redirect
+                        $dbModel->log_client_IP($exists['re_id'], $ip, $agent, 1, $proxy_log);
+
+                        $aff = $dbModel->getAffiliateAccountByID($exists['re_aff']);
+                        $aff_link = $this->build_aff_url($aff['aff_code'], $exists['re_destination']);
+
+                        $this->redirection_by_url($aff_link);
                     }
                     
                 } else {
+                    // Non Redirect
                     $dbModel->log_client_IP($exists['re_id'], $ip, $log, 0);
                 }
             } 
@@ -106,23 +105,15 @@ if (!class_exists('TD_Redirection')) {
             }
         }
 
-        public function redirection_by_post_id($post_id = '') {
-            if (!empty($post_id)) {
-
-                $redirect_url = get_post_meta($post_id, '_redirection_url', TRUE);
-
-                if ($redirect_url) {
-                    echo '<meta http-equiv="refresh" content="0; url=' . $redirect_url . '">';
-                    exit;
-                }
-            }
-        }
-        
         public function build_aff_url($aff_code, $url) {
             
             $base_url = "http://go.masoffer.net/v0/{$aff_code}?url=";
             
-            $builded_url = $base_url . urlencode($url);
+            if ( urlencode(urldecode($url)) === $url){
+                $builded_url = $base_url . $url;
+            } else {
+                $builded_url = $base_url . urlencode($url);
+            }
             
             return $builded_url;
             
